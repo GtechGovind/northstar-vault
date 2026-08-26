@@ -105,19 +105,34 @@ function normalize(parsed) {
   };
 }
 
-export async function reflect({ message, history = [] }) {
-  if (!process.env.GEMINI_API_KEY) {
-    throw new Error('AI service is not configured');
+function vertexEnabled() {
+  return /^(1|true)$/i.test(process.env.GOOGLE_GENAI_USE_VERTEXAI || '');
+}
+
+function createAIClient() {
+  if (vertexEnabled()) {
+    const project = process.env.GOOGLE_CLOUD_PROJECT;
+    if (!project) throw new Error('Vertex AI project is not configured');
+    return new GoogleGenAI({
+      vertexai: true,
+      project,
+      location: process.env.GOOGLE_CLOUD_LOCATION || 'global'
+    });
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  if (!process.env.GEMINI_API_KEY) throw new Error('AI service is not configured');
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+}
+
+export async function reflect({ message, history = [] }) {
+  const ai = createAIClient();
   const transcript = history.slice(-10).map((item) =>
     `${item.role === 'assistant' ? 'NORTHSTAR' : 'USER'}: ${item.text}`
   ).join('\n\n');
   const prompt = `${transcript ? `RECENT CONVERSATION\n${transcript}\n\n` : ''}CURRENT USER REFLECTION\n${message}`;
 
   const response = await ai.models.generateContent({
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    model: process.env.GEMINI_MODEL || (vertexEnabled() ? 'gemini-3.1-flash-lite' : 'gemini-3.6-flash'),
     contents: prompt,
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
@@ -134,4 +149,4 @@ export async function reflect({ message, history = [] }) {
   }
 }
 
-export { normalize, SYSTEM_INSTRUCTION };
+export { createAIClient, normalize, SYSTEM_INSTRUCTION, vertexEnabled };

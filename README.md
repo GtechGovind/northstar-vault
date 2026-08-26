@@ -11,7 +11,7 @@ The starter challenge asks for a journal. Northstar Vault adds an opinionated de
 - **Authenticity:** a distinct “Signal Map” interaction rather than a reskinned chat template.
 - **Usability:** Google SSO, quick-start prompts, multi-turn reflections, history, responsive design, keyboard shortcut, and plain-language errors.
 - **Stability:** bounded reads, strict schemas, rate limits, structured-output normalization, health endpoint, safe failure states, and container checks.
-- **Security:** Firebase token verification, per-user Firestore paths, deny-by-default rules, CSP/security headers, least-privilege deployment, Secret Manager, no secret-bearing client requests, export, and erasure.
+- **Security:** Firebase token verification, per-user Firestore paths, deny-by-default rules, CSP/security headers, keyless Vertex AI access, least-privilege deployment, export, and erasure.
 
 ## Architecture
 
@@ -24,12 +24,12 @@ Cloud Run / Express
   ├─ Verify ID token (Firebase Admin)
   ├─ Validate + rate-limit
   ├─ Read/write users/{verified uid}/...
-  └─ Gemini API key mounted from Secret Manager
+  └─ Keyless service-account call to Vertex AI
           ↓                         ↓
-Cloud Firestore                Gemini API
+Cloud Firestore                Gemini on Vertex AI
 ```
 
-The browser never receives the Gemini key and never chooses a Firestore user path. See [the threat model](docs/threat-model.md) and [AI Studio constitution](docs/AI_STUDIO_CUSTOM_INSTRUCTIONS.md).
+The browser never receives AI credentials and never chooses a Firestore user path. See [the threat model](docs/threat-model.md) and [AI Studio constitution](docs/AI_STUDIO_CUSTOM_INSTRUCTIONS.md).
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ The browser never receives the Gemini key and never chooses a Firestore user pat
 - Firebase added to that project
 - Google Sign-In enabled in Firebase Authentication
 - Firestore Native database
-- Gemini API key created through Google AI Studio
+- Vertex AI API enabled in the Google Cloud project
 - `gcloud`, `firebase-tools`, and Node.js 20+
 
 ## Local development
@@ -52,7 +52,7 @@ set -a && source .env && set +a
 npm run dev
 ```
 
-Do not put a real `.env` file or service-account key in Git. For team development, prefer Secret Manager and user ADC.
+Do not put a real `.env` file or service-account key in Git. For team development, use user ADC.
 
 ## Firebase setup
 
@@ -79,7 +79,7 @@ export SERVICE_ACCOUNT="northstar-vault-sa@${PROJECT_ID}.iam.gserviceaccount.com
 
 gcloud services enable \
   run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com \
-  secretmanager.googleapis.com firestore.googleapis.com firebase.googleapis.com
+  aiplatform.googleapis.com firestore.googleapis.com firebase.googleapis.com
 
 gcloud iam service-accounts create northstar-vault-sa \
   --display-name="Northstar Vault Cloud Run"
@@ -88,12 +88,13 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:${SERVICE_ACCOUNT}" \
   --role="roles/datastore.user"
 
-printf '%s' 'PASTE_KEY_IN_TERMINAL_NOT_SOURCE' | \
-  gcloud secrets create gemini-api-key --data-file=- --replication-policy=automatic
-
-gcloud secrets add-iam-policy-binding gemini-api-key \
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:${SERVICE_ACCOUNT}" \
-  --role="roles/secretmanager.secretAccessor"
+  --role="roles/firebaseauth.viewer"
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${SERVICE_ACCOUNT}" \
+  --role="roles/aiplatform.user"
 
 gcloud run deploy "$SERVICE" \
   --source . \
@@ -101,8 +102,7 @@ gcloud run deploy "$SERVICE" \
   --service-account "$SERVICE_ACCOUNT" \
   --allow-unauthenticated \
   --min=0 --max=3 --concurrency=40 --cpu=1 --memory=512Mi \
-  --set-secrets="GEMINI_API_KEY=gemini-api-key:latest" \
-  --set-env-vars="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},FIREBASE_PROJECT_ID=${PROJECT_ID},FIREBASE_API_KEY=YOUR_PUBLIC_FIREBASE_API_KEY,FIREBASE_AUTH_DOMAIN=${PROJECT_ID}.firebaseapp.com,FIREBASE_APP_ID=YOUR_PUBLIC_FIREBASE_APP_ID,GEMINI_MODEL=gemini-2.5-flash" \
+  --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=1,GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=global,FIREBASE_PROJECT_ID=${PROJECT_ID},FIREBASE_API_KEY=YOUR_PUBLIC_FIREBASE_API_KEY,FIREBASE_AUTH_DOMAIN=${PROJECT_ID}.firebaseapp.com,FIREBASE_APP_ID=YOUR_PUBLIC_FIREBASE_APP_ID,GEMINI_MODEL=gemini-3.1-flash-lite" \
   --labels="dev-tutorial=cloud-run-ai-challenge"
 ```
 
@@ -124,7 +124,7 @@ Then verify:
 5. A second account cannot read the first account's session URL.
 6. Export downloads valid JSON.
 7. Deleting one reflection and erasing the vault work only after confirmation.
-8. Browser network tools never show `GEMINI_API_KEY`.
+8. Browser network tools never show AI credentials.
 9. Firestore rules contain no open wildcard grants.
 10. Cloud Run has the required `dev-tutorial=cloud-run-ai-challenge` label.
 
@@ -132,8 +132,8 @@ Then verify:
 
 - Firebase Authentication — federated Google Sign-In
 - Cloud Firestore — user-isolated histories and structured Signal Maps
-- Gemini API — multi-turn reflection and structured analysis
-- Secret Manager — runtime Gemini-key injection
+- Gemini on Vertex AI — multi-turn reflection and structured analysis
+- Cloud Run service identity — keyless, least-privilege AI access
 - Cloud Run — containerized production endpoint
 
 Northstar Vault is reflection support, not medical, legal, or financial advice.

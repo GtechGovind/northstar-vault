@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize } from '../src/ai.js';
+import { normalize, vertexEnabled } from '../src/ai.js';
 
 test('normalizes and caps AI-controlled fields', () => {
   const result = normalize({
@@ -23,4 +23,14 @@ test('uses safe defaults for malformed structured output', () => {
   assert.equal(result.title, 'Untitled reflection');
   assert.equal(result.compass.clarity, 1);
   assert.equal(result.safetyEscalation, false);
+});
+
+test('recognizes explicit Vertex AI configuration', () => {
+  const previous = process.env.GOOGLE_GENAI_USE_VERTEXAI;
+  process.env.GOOGLE_GENAI_USE_VERTEXAI = 'true';
+  assert.equal(vertexEnabled(), true);
+  process.env.GOOGLE_GENAI_USE_VERTEXAI = '0';
+  assert.equal(vertexEnabled(), false);
+  if (previous === undefined) delete process.env.GOOGLE_GENAI_USE_VERTEXAI;
+  else process.env.GOOGLE_GENAI_USE_VERTEXAI = previous;
 });

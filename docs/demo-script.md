@@ -34,13 +34,13 @@ The strongest demo is a story, not a feature tour. Record at 1080p, keep the cur
 
 **Visual:** Open Privacy Center, show export controls, then cut to the repository threat model and Firestore rules.
 
-**Voiceover:** “Security is visible and testable: owner-bound Firestore rules, Firebase token verification, a deny-by-default data model, strict schemas, rate limits, CSP headers, export and erasure. The Gemini key is mounted from Secret Manager and never reaches the browser.”
+**Voiceover:** “Security is visible and testable: owner-bound Firestore rules, Firebase token verification, a deny-by-default data model, strict schemas, rate limits, CSP headers, export and erasure. Cloud Run calls Vertex AI with its least-privilege service identity, so no Gemini key reaches the browser.”
 
 ## 80–90s — close
 
 **Visual:** Return to the hero, then show the Cloud Run service URL and green health response.
 
-**Voiceover:** “Northstar Vault: private clarity, practical next steps—built with Firebase, Firestore, Gemini, Secret Manager, and Cloud Run.”
+**Voiceover:** “Northstar Vault: private clarity, practical next steps—built with Firebase, Firestore, Gemini on Vertex AI, and Cloud Run.”
 
 On-screen end card: `#AccelerateAIwithCloudRun`
 
@@ -53,11 +53,11 @@ What makes it production-minded:
 - Firebase Google Sign-In with server-side ID-token verification
 - user-isolated Firestore paths and deny-by-default rules
 - Gemini structured output with validation and prompt-injection boundaries
-- API key mounted from Google Cloud Secret Manager
+- keyless Vertex AI access through the Cloud Run service account
 - export, erasure, rate limits, CSP headers, health checks, and a five-zone threat model
 
 The most important design choice: Northstar helps people choose; it never pretends to decide for them.
 
-Built on Cloud Run with Firebase, Firestore, Gemini, and Secret Manager.
+Built on Cloud Run with Firebase, Firestore, and Gemini on Vertex AI.
 
 #AccelerateAIwithCloudRun #Gemini #GoogleCloud #Firebase #CloudRun #BuildInPublic
