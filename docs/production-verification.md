@@ -1,6 +1,6 @@
 # Production verification
 
-Verified against Cloud Run revision `northstar-vault-00006-sv5` on 27 August 2026.
+Verified against Cloud Run revision `northstar-vault-00007-fjl` on 27 August 2026.
 
 ## Endpoint
 
@@ -33,9 +33,10 @@ Verified against Cloud Run revision `northstar-vault-00006-sv5` on 27 August 202
 - Gemini runs through Vertex AI using the Cloud Run service identity; no API key is required by the request path.
 - The dedicated service account has Datastore User, Firebase Auth Viewer, and Vertex AI User only; no service-account key file exists.
 - The structured response populated facts, assumptions, options, a counterpoint, compass ratings, and a 48-hour experiment.
+- A follow-up reflection used prior context, and all four messages survived a full browser reload.
+- Private export completed successfully and displayed its success confirmation.
 
 ## Remaining manual checks
 
-- history persistence after reload
 - second-account isolation
-- export and deletion controls
+- single-entry deletion and full-vault erasure confirmations
