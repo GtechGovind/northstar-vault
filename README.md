@@ -137,3 +137,10 @@ Then verify:
 - Cloud Run — containerized production endpoint
 
 Northstar Vault is reflection support, not medical, legal, or financial advice.
+
+## Demo evidence
+
+- `docs/northstar-social-preview.png` — polished Signal Map and multi-turn demo frame
+- `docs/northstar-submission-screenshot.png` — production viewport evidence
+- `docs/demo-script.md` — 90-second recording storyboard
+- `docs/social-post.md` — approval-ready social post copy
