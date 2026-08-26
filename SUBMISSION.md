@@ -2,7 +2,7 @@
 
 ## Prototype link
 
-`https://TO-BE-DEPLOYED.run.app`
+`https://northstar-vault-546899882968.asia-south1.run.app`
 
 ## Public repository
 
