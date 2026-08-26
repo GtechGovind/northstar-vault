@@ -1,6 +1,6 @@
 # Production verification
 
-Verified against Cloud Run revision `northstar-vault-00001-8qg` on 27 August 2026.
+Verified against Cloud Run revision `northstar-vault-00003-667` on 27 August 2026.
 
 ## Endpoint
 
@@ -16,6 +16,9 @@ Verified against Cloud Run revision `northstar-vault-00001-8qg` on 27 August 202
 - Production dependency audit: 0 known vulnerabilities.
 - Firestore rules compiled and deployed successfully.
 - Firestore database is Native mode in `asia-south1`.
+- The production Cloud Run domain is present in Firebase Authentication's authorized-domain list.
+- The Google provider is enabled with `govind.csae@gmail.com` as the support email.
+- The hardened sign-in client falls back from popup to top-level redirect when a browser blocks popups.
 
 ## Response-header evidence
 
