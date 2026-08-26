@@ -1,0 +1,267 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
+
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
+const state = { auth: null, user: null, sessionId: null, sessions: [], busy: false };
+
+function toast(message) {
+  const node = $('#toast');
+  node.textContent = message;
+  node.classList.add('show');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => node.classList.remove('show'), 3500);
+}
+
+async function api(path, options = {}) {
+  const headers = new Headers(options.headers || {});
+  if (options.body) headers.set('Content-Type', 'application/json');
+  if (state.user) headers.set('Authorization', `Bearer ${await state.user.getIdToken()}`);
+  const response = await fetch(path, { ...options, headers });
+  if (!response.ok) {
+    const detail = await response.json().catch(() => ({}));
+    throw new Error(detail.error || 'Request failed.');
+  }
+  if (response.status === 204) return null;
+  return response;
+}
+
+async function signIn() {
+  if (!state.auth) return toast('Sign-in is still loading. Please try again.');
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    await signInWithPopup(state.auth, provider);
+  } catch (error) {
+    if (error.code !== 'auth/popup-closed-by-user') toast('Google Sign-In could not be completed.');
+  }
+}
+
+function showWorkspace(user) {
+  $('#landing').classList.add('hidden');
+  $('#workspace').classList.remove('hidden');
+  $('#profile-name').textContent = user.displayName || 'Private user';
+  $('#profile-email').textContent = user.email || '';
+  if (user.photoURL) $('#profile-photo').src = user.photoURL;
+}
+
+function showLanding() {
+  $('#workspace').classList.add('hidden');
+  $('#landing').classList.remove('hidden');
+}
+
+function escapeHTML(value) {
+  const node = document.createElement('div');
+  node.textContent = value ?? '';
+  return node.innerHTML;
+}
+
+function sessionTime(value) {
+  if (!value) return 'Just now';
+  const date = new Date(value);
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function renderSessions() {
+  const list = $('#session-list');
+  list.replaceChildren();
+  state.sessions.forEach((session) => {
+    const button = document.createElement('button');
+    button.className = `session-item${session.id === state.sessionId ? ' active' : ''}`;
+    button.innerHTML = `<strong>${escapeHTML(session.title)}</strong><span>${sessionTime(session.updatedAt)} · ${escapeHTML(session.tags?.[0] || 'reflection')}</span>`;
+    button.addEventListener('click', () => openSession(session.id));
+    list.append(button);
+  });
+}
+
+async function loadSessions() {
+  try {
+    const response = await api('/api/private/sessions');
+    state.sessions = (await response.json()).sessions;
+    renderSessions();
+  } catch (error) { toast(error.message); }
+}
+
+function resetSession() {
+  state.sessionId = null;
+  $('#messages').replaceChildren();
+  $('#empty-state').classList.remove('hidden');
+  $('#delete-session').classList.add('hidden');
+  $('#signal-empty').classList.remove('hidden');
+  $('#signal-content').classList.add('hidden');
+  renderSessions();
+  $('#message-input').focus();
+}
+
+function messageNode(role, text, pending = false) {
+  const article = document.createElement('article');
+  article.className = `message ${role}`;
+  const label = document.createElement('span');
+  label.className = 'message-label';
+  label.textContent = role === 'user' ? 'You' : 'Northstar';
+  const body = document.createElement('div');
+  body.className = 'message-body';
+  if (pending) body.innerHTML = '<div class="thinking" aria-label="Northstar is reflecting"><i></i><i></i><i></i></div>';
+  else body.textContent = text;
+  article.append(label, body);
+  return article;
+}
+
+function addMessage(role, text, pending = false) {
+  $('#empty-state').classList.add('hidden');
+  const node = messageNode(role, text, pending);
+  $('#messages').append(node);
+  node.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return node;
+}
+
+function list(items) {
+  if (!items?.length) return '<p>Nothing was inferred here.</p>';
+  return `<ul>${items.map((item) => `<li>${escapeHTML(item)}</li>`).join('')}</ul>`;
+}
+
+function renderSignal(analysis) {
+  $('#signal-empty').classList.add('hidden');
+  const content = $('#signal-content');
+  content.classList.remove('hidden');
+  content.innerHTML = `
+    <div class="compass">
+      <div><span>Clarity</span><b>${analysis.compass.clarity}</b>/5</div>
+      <div><span>Agency</span><b>${analysis.compass.agency}</b>/5</div>
+      <div><span>Energy</span><b>${analysis.compass.energy}</b>/5</div>
+    </div>
+    <article class="signal-card"><h3>Observed facts</h3>${list(analysis.signals.facts)}</article>
+    <article class="signal-card"><h3>Possible assumptions</h3>${list(analysis.signals.assumptions)}</article>
+    <article class="signal-card"><h3>Options</h3>${list(analysis.signals.options)}</article>
+    <article class="signal-card"><h3>Honest counterpoint</h3><p>${escapeHTML(analysis.signals.counterpoint)}</p></article>
+    <article class="signal-card experiment"><h3>48-hour experiment</h3><strong>${escapeHTML(analysis.signals.nextExperiment.action)}</strong><p>${escapeHTML(analysis.signals.nextExperiment.why)}</p><small>Check for: ${escapeHTML(analysis.signals.nextExperiment.checkIn)}</small></article>`;
+}
+
+async function openSession(id) {
+  if (state.busy) return;
+  try {
+    state.sessionId = id;
+    renderSessions();
+    const response = await api(`/api/private/sessions/${encodeURIComponent(id)}`);
+    const data = await response.json();
+    $('#messages').replaceChildren();
+    $('#empty-state').classList.add('hidden');
+    $('#delete-session').classList.remove('hidden');
+    data.messages.forEach((message) => addMessage(message.role, message.text));
+    const latest = [...data.messages].reverse().find((message) => message.analysis);
+    if (latest) renderSignal(latest.analysis);
+    else {
+      $('#signal-empty').classList.remove('hidden');
+      $('#signal-content').classList.add('hidden');
+    }
+  } catch (error) { toast(error.message); }
+}
+
+async function sendReflection(message) {
+  if (state.busy || !message.trim()) return;
+  state.busy = true;
+  $('#send-button').disabled = true;
+  $('#message-input').value = '';
+  resizeComposer();
+  addMessage('user', message.trim());
+  const thinking = addMessage('assistant', '', true);
+  try {
+    const response = await api('/api/private/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message: message.trim(), ...(state.sessionId && { sessionId: state.sessionId }) })
+    });
+    const data = await response.json();
+    state.sessionId = data.sessionId;
+    thinking.remove();
+    addMessage('assistant', data.analysis.reply);
+    renderSignal(data.analysis);
+    $('#delete-session').classList.remove('hidden');
+    await loadSessions();
+  } catch (error) {
+    thinking.remove();
+    addMessage('assistant', 'I could not process that reflection just now. Your words were not added to an AI response—please try again.');
+    toast(error.message);
+  } finally {
+    state.busy = false;
+    $('#send-button').disabled = false;
+    $('#message-input').focus();
+  }
+}
+
+function resizeComposer() {
+  const input = $('#message-input');
+  input.style.height = 'auto';
+  input.style.height = `${Math.min(input.scrollHeight, 170)}px`;
+}
+
+async function deleteCurrentSession() {
+  if (!state.sessionId || !confirm('Permanently delete this reflection? This cannot be undone.')) return;
+  try {
+    await api(`/api/private/sessions/${encodeURIComponent(state.sessionId)}`, { method: 'DELETE' });
+    resetSession();
+    await loadSessions();
+    toast('Reflection permanently deleted.');
+  } catch (error) { toast(error.message); }
+}
+
+async function exportData() {
+  try {
+    const response = await api('/api/private/export');
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = 'northstar-vault-export.json'; link.click();
+    URL.revokeObjectURL(url);
+    toast('Your private export is ready.');
+  } catch (error) { toast(error.message); }
+}
+
+async function eraseVault() {
+  const phrase = prompt('This permanently deletes every reflection. Type ERASE MY VAULT to continue.');
+  if (phrase !== 'ERASE MY VAULT') return;
+  try {
+    await api('/api/private/data', { method: 'DELETE' });
+    $('#privacy-dialog').close();
+    resetSession();
+    state.sessions = [];
+    renderSessions();
+    toast('Your vault has been permanently erased.');
+  } catch (error) { toast(error.message); }
+}
+
+async function boot() {
+  try {
+    const response = await fetch('/api/config');
+    if (!response.ok) throw new Error('App configuration is incomplete.');
+    const config = await response.json();
+    state.auth = getAuth(initializeApp(config));
+    onAuthStateChanged(state.auth, async (user) => {
+      state.user = user;
+      if (!user) return showLanding();
+      showWorkspace(user);
+      resetSession();
+      await loadSessions();
+    });
+  } catch (error) { toast(error.message); }
+}
+
+['#sign-in-top', '#sign-in-main'].forEach((id) => $(id).addEventListener('click', signIn));
+$('#sign-out').addEventListener('click', () => signOut(state.auth));
+$('#new-session').addEventListener('click', resetSession);
+$('#delete-session').addEventListener('click', deleteCurrentSession);
+$('#privacy-button').addEventListener('click', () => $('#privacy-dialog').showModal());
+$('.dialog-close').addEventListener('click', () => $('#privacy-dialog').close());
+$('#export-data').addEventListener('click', exportData);
+$('#delete-data').addEventListener('click', eraseVault);
+$('#composer').addEventListener('submit', (event) => { event.preventDefault(); sendReflection($('#message-input').value); });
+$('#message-input').addEventListener('input', resizeComposer);
+$('#message-input').addEventListener('keydown', (event) => {
+  if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+    event.preventDefault(); sendReflection(event.currentTarget.value);
+  }
+});
+$$('[data-starter]').forEach((button) => button.addEventListener('click', () => {
+  $('#message-input').value = button.dataset.starter; resizeComposer(); $('#message-input').focus();
+}));
+
+boot();

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Northstar Vault is a privacy-first Gemini decision journal that turns tangled thoughts into testable next steps.">
+  <meta name="theme-color" content="#101311">
+  <title>Northstar Vault — private clarity, practical next steps</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <section id="landing" class="landing">
+    <nav class="landing-nav" aria-label="Primary navigation">
+      <a class="brand" href="#" aria-label="Northstar Vault home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>Northstar Vault</span>
+      </a>
+      <button id="sign-in-top" class="button button-ghost">Sign in</button>
+    </nav>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow"><span></span> Private by architecture</div>
+          <h1>Turn tangled thoughts into <em>clear next steps.</em></h1>
+          <p class="hero-lead">A private decision journal that helps you separate facts from assumptions, explore honest options, and choose one small experiment.</p>
+          <div class="hero-actions">
+            <button id="sign-in-main" class="button button-primary">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.6h3.2c1.9-1.8 3-4.4 3-7.5Z" fill="#4285F4"/><path d="M12 22c2.7 0 5-.9 6.6-2.3l-3.2-2.6c-.9.6-2 1-3.4 1a5.8 5.8 0 0 1-5.5-4H3.2v2.6A10 10 0 0 0 12 22Z" fill="#34A853"/><path d="M6.5 14a6 6 0 0 1 0-4V7.3H3.2a10 10 0 0 0 0 9.4L6.5 14Z" fill="#FBBC05"/><path d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.7 9.7 0 0 0 3.2 7.3L6.5 10A5.8 5.8 0 0 1 12 5.9Z" fill="#EA4335"/></svg>
+              Continue with Google
+            </button>
+            <span class="microcopy">No password stored · Your entries stay isolated</span>
+          </div>
+          <div class="trust-row" aria-label="Security features">
+            <span>Firebase Auth</span><i></i><span>Firestore isolation</span><i></i><span>Secret Manager</span>
+          </div>
+        </div>
+
+        <div class="signal-preview" aria-label="Example Northstar Signal Map">
+          <div class="preview-top">
+            <span class="preview-dot"></span>
+            <span>Signal Map</span>
+            <span class="private-pill">Private</span>
+          </div>
+          <div class="preview-prompt">“I keep delaying the launch because it still doesn’t feel ready.”</div>
+          <div class="signal-grid">
+            <article><span class="signal-icon mint">01</span><h3>Facts</h3><p>Three people completed the core flow successfully.</p></article>
+            <article><span class="signal-icon amber">02</span><h3>Assumption</h3><p>One rough edge means the whole launch will fail.</p></article>
+            <article><span class="signal-icon blue">03</span><h3>Next experiment</h3><p>Invite five users to a 48-hour private beta.</p></article>
+          </div>
+          <div class="compass-preview">
+            <div><span>Clarity</span><b>4</b><small>/5</small></div>
+            <div><span>Agency</span><b>3</b><small>/5</small></div>
+            <div><span>Energy</span><b>3</b><small>/5</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="principles">
+        <article><span>01</span><h2>See the signal</h2><p>Gemini separates what happened from the story your mind built around it.</p></article>
+        <article><span>02</span><h2>Choose, don’t obey</h2><p>You get transparent options and counterpoints—not a black-box command.</p></article>
+        <article><span>03</span><h2>Own your data</h2><p>Export your vault or permanently erase it. Privacy is a control, not a slogan.</p></article>
+      </section>
+    </main>
+    <footer class="landing-footer"><span>Reflection support, not medical advice.</span><span>Built securely on Google Cloud</span></footer>
+  </section>
+
+  <section id="workspace" class="workspace hidden" aria-label="Northstar Vault workspace">
+    <aside class="sidebar">
+      <a class="brand workspace-brand" href="#">
+        <span class="brand-mark">N</span><span>Northstar Vault</span>
+      </a>
+      <button id="new-session" class="button new-button"><span>＋</span> New reflection</button>
+      <div class="sidebar-label">Your private vault</div>
+      <div id="session-list" class="session-list" aria-live="polite"></div>
+      <div class="sidebar-bottom">
+        <button id="privacy-button" class="sidebar-action"><span>◇</span> Privacy center</button>
+        <button id="sign-out" class="sidebar-action"><span>↗</span> Sign out</button>
+        <div class="profile-chip">
+          <img id="profile-photo" alt="" referrerpolicy="no-referrer">
+          <div><strong id="profile-name">Private user</strong><span id="profile-email"></span></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="journal">
+      <header class="journal-header">
+        <div><span class="lock-dot">●</span><span>Private session</span></div>
+        <button id="delete-session" class="icon-button hidden" aria-label="Delete this reflection" title="Delete reflection">⌫</button>
+      </header>
+      <div id="conversation" class="conversation">
+        <section id="empty-state" class="empty-state">
+          <span class="orbit-mark">✦</span>
+          <p class="eyebrow center"><span></span> A quiet space to think</p>
+          <h1>What’s taking up<br>space in your mind?</h1>
+          <p>Write it imperfectly. Northstar will help separate the signal from the noise.</p>
+          <div class="starter-grid">
+            <button data-starter="I’m circling a decision and want to see the facts, assumptions, and real options clearly."><span>Decision</span>Untangle a choice</button>
+            <button data-starter="Something happened today that I keep replaying. Help me understand what I know and what I’m assuming."><span>Reflection</span>Process a moment</button>
+            <button data-starter="I have an idea I care about, but it still feels vague. Help me shape one useful 48-hour experiment."><span>Idea</span>Shape an experiment</button>
+          </div>
+        </section>
+        <div id="messages" class="messages"></div>
+      </div>
+      <form id="composer" class="composer">
+        <label class="sr-only" for="message-input">Your private reflection</label>
+        <textarea id="message-input" maxlength="4000" rows="1" placeholder="Write what’s on your mind…"></textarea>
+        <div class="composer-bottom">
+          <span><kbd>⌘</kbd><kbd>↵</kbd> to reflect</span>
+          <button id="send-button" class="send-button" type="submit" aria-label="Send reflection">↑</button>
+        </div>
+      </form>
+      <p class="disclaimer">Northstar can make mistakes. It offers reflection prompts—not professional advice.</p>
+    </main>
+
+    <aside id="signal-panel" class="signal-panel">
+      <div class="panel-heading"><div><span>Live analysis</span><h2>Signal Map</h2></div><span class="private-pill">Private</span></div>
+      <div id="signal-empty" class="signal-empty">
+        <div class="radar"><i></i><i></i><i></i><span>✦</span></div>
+        <h3>Your signal map will appear here</h3>
+        <p>Facts, assumptions, options, and a small next experiment—generated only from what you share.</p>
+      </div>
+      <div id="signal-content" class="signal-content hidden"></div>
+    </aside>
+  </section>
+
+  <dialog id="privacy-dialog" class="privacy-dialog">
+    <button class="dialog-close" aria-label="Close">×</button>
+    <span class="orbit-mark small">◇</span>
+    <p class="eyebrow center"><span></span> Privacy center</p>
+    <h2>Your vault, your control.</h2>
+    <p>Google Sign-In proves who you are. Every database path is bound to your Firebase user ID, and the Gemini key never reaches your browser.</p>
+    <div class="security-list">
+      <div><span>✓</span><p><strong>Identity verified server-side</strong>Firebase ID tokens are validated on every private API request.</p></div>
+      <div><span>✓</span><p><strong>Strict user isolation</strong>Your reflections live only under your own Firestore path.</p></div>
+      <div><span>✓</span><p><strong>Secrets stay secret</strong>The Gemini key is mounted from Google Cloud Secret Manager.</p></div>
+      <div><span>✓</span><p><strong>No model training claim</strong>The app does not reuse your entries to train its own models.</p></div>
+    </div>
+    <div class="data-actions">
+      <button id="export-data" class="button button-secondary">Export my data</button>
+      <button id="delete-data" class="button button-danger">Erase my vault</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
