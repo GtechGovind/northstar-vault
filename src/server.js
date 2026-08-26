@@ -10,6 +10,12 @@ import { reflect } from './ai.js';
 import { db, deleteCollection, userSessions, verifyFirebaseToken } from './firebase.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const authScriptOrigins = [
+  "'self'",
+  'https://www.gstatic.com',
+  'https://apis.google.com',
+  'https://accounts.google.com'
+];
 const app = express();
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -20,8 +26,17 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'https://www.gstatic.com'],
-      connectSrc: ["'self'", 'https://*.googleapis.com', 'https://*.firebaseapp.com', 'https://securetoken.googleapis.com'],
+      scriptSrc: authScriptOrigins,
+      scriptSrcElem: authScriptOrigins,
+      connectSrc: [
+        "'self'",
+        'https://www.gstatic.com',
+        'https://apis.google.com',
+        'https://accounts.google.com',
+        'https://*.googleapis.com',
+        'https://*.firebaseapp.com',
+        'https://securetoken.googleapis.com'
+      ],
       frameSrc: ["'self'", 'https://*.firebaseapp.com', 'https://accounts.google.com'],
       imgSrc: ["'self'", 'data:', 'https://lh3.googleusercontent.com'],
       styleSrc: ["'self'", "'unsafe-inline'"],
@@ -36,7 +51,10 @@ app.use(helmet({
 app.use(express.json({ limit: '32kb', type: 'application/json' }));
 app.use(express.static(path.join(__dirname, '..', 'public'), {
   etag: true,
-  maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0
+  maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+  }
 }));
 
 const apiLimiter = rateLimit({

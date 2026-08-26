@@ -31,7 +31,11 @@ test('private endpoints fail closed without a Firebase token', async () => {
 test('security headers are present on the public app', async () => {
   await withServer(async (base) => {
     const response = await fetch(base);
-    assert.match(response.headers.get('content-security-policy'), /default-src 'self'/);
+    const csp = response.headers.get('content-security-policy');
+    assert.match(csp, /default-src 'self'/);
+    assert.match(csp, /script-src-elem[^;]*https:\/\/apis\.google\.com/);
+    assert.match(csp, /script-src-elem[^;]*https:\/\/accounts\.google\.com/);
+    assert.match(csp, /connect-src[^;]*https:\/\/www\.gstatic\.com/);
     assert.equal(response.headers.get('cross-origin-opener-policy'), 'same-origin-allow-popups');
     assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
   });
