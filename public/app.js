@@ -38,7 +38,7 @@ async function signIn() {
       'auth/cancelled-popup-request',
       'auth/operation-not-supported-in-this-environment'
     ]);
-    if (redirectCodes.has(error.code)) {
+    if (!error.code || redirectCodes.has(error.code)) {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await signInWithRedirect(state.auth, provider);
