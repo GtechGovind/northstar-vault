@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
+import { getAuth, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -33,7 +33,21 @@ async function signIn() {
     provider.setCustomParameters({ prompt: 'select_account' });
     await signInWithPopup(state.auth, provider);
   } catch (error) {
-    if (error.code !== 'auth/popup-closed-by-user') toast('Google Sign-In could not be completed.');
+    const redirectCodes = new Set([
+      'auth/popup-blocked',
+      'auth/cancelled-popup-request',
+      'auth/operation-not-supported-in-this-environment'
+    ]);
+    if (redirectCodes.has(error.code)) {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithRedirect(state.auth, provider);
+      return;
+    }
+    if (error.code !== 'auth/popup-closed-by-user') {
+      console.error('Firebase sign-in failed:', error.code || 'unknown');
+      toast(`Google Sign-In could not be completed${error.code ? ` (${error.code.replace('auth/', '')})` : ''}.`);
+    }
   }
 }
 
@@ -235,6 +249,10 @@ async function boot() {
     if (!response.ok) throw new Error('App configuration is incomplete.');
     const config = await response.json();
     state.auth = getAuth(initializeApp(config));
+    await getRedirectResult(state.auth).catch((error) => {
+      console.error('Firebase redirect sign-in failed:', error.code || 'unknown');
+      toast(`Google Sign-In could not be completed${error.code ? ` (${error.code.replace('auth/', '')})` : ''}.`);
+    });
     onAuthStateChanged(state.auth, async (user) => {
       state.user = user;
       if (!user) return showLanding();
