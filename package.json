@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
+    "verify:release": "node scripts/verify-release.mjs",
     "build": "node scripts/build-icons.mjs && tailwindcss -i ./ui/tailwind.css -o ./public/styles.css --minify",
     "dev:css": "tailwindcss -i ./ui/tailwind.css -o ./public/styles.css --watch",
     "dev": "node --watch src/server.js",

@@ -9,6 +9,7 @@ import {
   signOut,
 } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 import { createPrivacyReceipt } from './privacy-receipt.js?v=20260827-receipt';
+import { createWorkspaceLayout } from './workspace-layout.js?v=20260828-shell';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -28,14 +29,28 @@ const state = {
   deleting: false,
   drafts: new Map(),
 };
-const media = {
-  history: window.matchMedia('(min-width: 1024px)'),
-  signal: window.matchMedia('(min-width: 1280px)'),
-};
 const drawers = {
   history: { panel: '#sidebar', slot: '#history-slot' },
   signal: { panel: '#signal-panel', slot: '#signal-slot' },
 };
+const layout = createWorkspaceLayout({
+  root: $('#workspace'),
+  panels: Object.fromEntries(
+    Object.entries(drawers).map(([name, selectors]) => [
+      name,
+      {
+        panel: $(selectors.panel),
+        slot: $(selectors.slot),
+        dialog: $('#' + name + '-dialog'),
+        trigger: $('#open-' + name),
+        dismiss: $('#close-' + name),
+        dockedFocus: $(name === 'history' ? '#new-session' : '#signal-insights'),
+      },
+    ]),
+  ),
+  canOpen: () => Boolean(state.user),
+  onResize: updateScrollControl,
+});
 const icon = (name, classes = 'size-4') =>
   `<svg class="${classes}" aria-hidden="true"><use href="/icons.svg#${name}"></use></svg>`;
 function visible(selector, show) {
@@ -52,25 +67,8 @@ function toast(message) {
   }, 5000);
 }
 
-function restoreDrawer(name) {
-  $(drawers[name].slot).append($(drawers[name].panel));
-  $('#open-' + name).setAttribute('aria-expanded', 'false');
-}
-
 function closeDrawer(name) {
-  $('#' + name + '-dialog').close();
-  restoreDrawer(name);
-}
-
-/** Move the existing panel into a focus-trapped dialog; never clone private DOM. */
-function openDrawer(name) {
-  if (!state.user || media[name].matches) return;
-  for (const other of Object.keys(drawers)) if (other !== name) closeDrawer(other);
-  const dialog = $('#' + name + '-dialog');
-  dialog.append($(drawers[name].panel));
-  $('#open-' + name).setAttribute('aria-expanded', 'true');
-  dialog.showModal();
-  $('#close-' + name).focus();
+  layout.close(name);
 }
 
 /** Keep browser chrome / on-screen keyboards from covering the composer.
@@ -78,10 +76,7 @@ function openDrawer(name) {
  * Pinch zoom is left to the browser rather than forcing a smaller layout.
  */
 function syncViewportHeight() {
-  const viewport = window.visualViewport;
-  if (viewport?.scale === 1) $('#workspace').style.height = `${viewport.height}px`;
-  else $('#workspace').style.removeProperty('height');
-  updateScrollControl();
+  layout.sync();
 }
 
 function composerFeedback(message = '') {
@@ -98,7 +93,9 @@ function updateControls() {
     !$('#message-input').value.trim() ||
     $('#message-input').value.length > 4000;
   $('#new-session').disabled = state.deleting;
+  $('#new-session-quick').disabled = state.deleting;
   $('#delete-session').disabled = locked;
+  visible('#reflection-actions', Boolean(state.sessionId) && !state.loadingSession);
   $('#send-button').setAttribute(
     'aria-label',
     state.busy ? 'Northstar is reflecting' : 'Send reflection',
@@ -115,14 +112,15 @@ function updateControls() {
     : state.loadingSession
       ? 'Opening reflection…'
       : state.sessionId
-        ? 'Saved in your private vault'
-        : 'Only in your private vault';
+        ? 'Saved privately'
+        : 'Private reflection';
 }
 
 function updateTitle() {
   $('#session-title').textContent =
     state.sessions.find((item) => item.id === state.sessionId)?.title ||
     (state.sessionId ? 'Your reflection' : 'New reflection');
+  $('#session-title').title = $('#session-title').textContent;
 }
 
 function saveDraft() {
@@ -210,6 +208,7 @@ function showLanding() {
   state.confirmation = null;
   state.deleting = false;
   $('#confirm-dialog').close();
+  $('#reflection-actions').open = false;
   $('#confirm-phrase').value = '';
   $('#confirm-phrase').disabled = false;
   $('#confirm-cancel').disabled = false;
@@ -255,7 +254,7 @@ function renderSessions() {
   $('#session-count').textContent = String(state.sessions.length);
   if (!sessions.length) {
     const empty = document.createElement('p');
-    empty.className = 'px-3 py-6 text-xs leading-6 text-muted';
+    empty.className = 'px-3 py-6 text-sm leading-6 text-muted';
     empty.textContent = query
       ? 'No matching reflections. Try another word.'
       : 'A fresh page awaits. Your reflections will appear here.';
@@ -267,7 +266,7 @@ function renderSessions() {
       'group block min-h-16 w-full min-w-0 rounded-xl border border-transparent px-3 py-3 text-left transition hover:bg-ink/5 aria-current:border-leaf/15 aria-current:bg-leaf/8 motion-reduce:transition-none';
     if (session.id === state.sessionId) button.setAttribute('aria-current', 'true');
     button.title = session.title || 'Untitled reflection';
-    button.innerHTML = `<span class="block truncate text-xs font-semibold leading-5">${escapeHTML(session.title || 'Untitled reflection')}</span><span class="mt-1 block truncate text-[11px] leading-5 text-muted">${escapeHTML(sessionTime(session.updatedAt))} · ${escapeHTML(session.tags?.[0] || 'reflection')}</span>`;
+    button.innerHTML = `<span class="block truncate text-sm font-semibold leading-5">${escapeHTML(session.title || 'Untitled reflection')}</span><span class="mt-1 block truncate text-xs leading-5 text-muted">${escapeHTML(sessionTime(session.updatedAt))} · ${escapeHTML(session.tags?.[0] || 'reflection')}</span>`;
     button.addEventListener('click', () => openSession(session.id));
     list.append(button);
   });
@@ -293,6 +292,7 @@ async function loadSessions() {
 
 function resetSession() {
   state.viewEpoch += 1;
+  $('#reflection-actions').open = false;
   clearReceipt();
   state.busy = false;
   state.loadingSession = false;
@@ -317,16 +317,15 @@ function messageNode(role, text, pending = false) {
   const article = document.createElement('article');
   article.className =
     role === 'user'
-      ? 'ml-auto w-fit min-w-0 max-w-[94%] rounded-3xl rounded-tr-lg border border-ink/5 bg-canvas px-5 py-4 sm:max-w-[88%]'
+      ? 'ml-auto w-fit min-w-0 max-w-[94%] rounded-2xl rounded-tr-md border border-ink/5 bg-canvas px-4 py-3 @min-[36rem]/chat:max-w-[88%]'
       : 'min-w-0';
   const label = document.createElement('span');
-  label.className = 'mb-2 flex items-center gap-2 text-[11px] font-semibold text-muted';
+  label.className = 'mb-2 flex items-center gap-2 text-xs font-semibold text-muted';
   label.textContent = role === 'user' ? 'You' : 'Northstar';
   if (role !== 'user')
-    label.innerHTML = `<span class="grid size-6 place-items-center rounded-lg bg-leaf/10 text-leaf">${icon('sparkles', 'size-3.5')}</span>Northstar <span class="rounded-md border border-ink/10 px-1.5 py-0.5 text-[9px] font-medium tracking-wide">AI</span>`;
+    label.innerHTML = `<span class="grid size-6 place-items-center rounded-lg bg-leaf/10 text-leaf">${icon('sparkles', 'size-3.5')}</span>Northstar <span class="rounded-md border border-ink/10 px-1.5 py-0.5 text-xs font-medium tracking-wide">AI</span>`;
   const body = document.createElement('div');
-  body.className =
-    'text-[15px] leading-7 whitespace-pre-wrap wrap-anywhere sm:text-base sm:leading-8';
+  body.className = 'text-base leading-7 whitespace-pre-wrap wrap-anywhere';
   if (pending) {
     body.className = 'flex items-center gap-2 py-2 text-sm text-muted';
     body.innerHTML = `${icon('loader-circle', 'size-4 animate-spin motion-reduce:animate-none')}Finding a little perspective…`;
@@ -335,7 +334,7 @@ function messageNode(role, text, pending = false) {
   if (role === 'assistant' && !pending) {
     const copy = document.createElement('button');
     copy.className =
-      'mt-2 flex min-h-12 items-center gap-2 rounded-full px-3 text-[11px] font-medium text-muted hover:bg-ink/5 hover:text-ink';
+      'mt-2 flex min-h-12 items-center gap-2 rounded-full px-3 text-xs font-medium text-muted hover:bg-ink/5 hover:text-ink';
     copy.setAttribute('aria-label', 'Copy Northstar response');
     copy.innerHTML = `${icon('copy', 'size-3.5')}Copy response`;
     copy.addEventListener('click', async () => {
@@ -382,8 +381,8 @@ function updateScrollControl() {
 
 function list(items) {
   if (!items?.length)
-    return '<p class="text-xs leading-6 text-muted">Nothing inferred here yet.</p>';
-  return `<ul class="space-y-2 text-xs leading-6 text-muted">${items.map((item) => `<li class="flex gap-2"><span class="mt-2.5 size-1 shrink-0 rounded-full bg-leaf/50" aria-hidden="true"></span><span class="min-w-0">${escapeHTML(item)}</span></li>`).join('')}</ul>`;
+    return '<p class="text-sm leading-6 text-muted">Nothing inferred here yet.</p>';
+  return `<ul class="space-y-2 text-sm leading-6 text-muted">${items.map((item) => `<li class="flex gap-2"><span class="mt-2.5 size-1 shrink-0 rounded-full bg-leaf/50" aria-hidden="true"></span><span class="min-w-0">${escapeHTML(item)}</span></li>`).join('')}</ul>`;
 }
 
 /** Render normalized model output as escaped text, never trusted HTML. */
@@ -394,23 +393,28 @@ function renderSignal(analysis) {
   visible('#signal-ready-dot', true);
   const score = (value) => Math.max(1, Math.min(5, Number(value) || 1));
   const card = (title, body) =>
-    `<article class="rounded-2xl border border-ink/10 bg-paper p-4"><h3 class="mb-2 text-xs font-semibold">${title}</h3>${body}</article>`;
+    `<article class="rounded-2xl border border-ink/10 bg-paper p-4"><h3 class="mb-2 text-sm font-semibold">${title}</h3>${body}</article>`;
   content.innerHTML = `
     <section class="rounded-2xl border border-leaf/15 bg-leaf/5 p-4" aria-label="Reflection compass">
-      <div class="grid grid-cols-3 gap-2">${['clarity', 'agency', 'energy'].map((key) => `<div><span class="block text-[10px] text-muted capitalize">${key}</span><span class="mt-1 block text-xl font-semibold tabular-nums">${score(analysis.compass[key])}<span class="ml-0.5 text-[10px] font-normal text-muted">/5</span></span></div>`).join('')}</div>
-      <p class="mt-3 border-t border-leaf/10 pt-3 text-[10px] leading-4 text-muted">AI’s reading of this entry—not a score of you.</p>
+      <div class="grid grid-cols-3 gap-2">${['clarity', 'agency', 'energy'].map((key) => `<div><span class="block text-xs text-muted capitalize">${key}</span><span class="mt-1 block text-xl font-semibold tabular-nums">${score(analysis.compass[key])}<span class="ml-0.5 text-xs font-normal text-muted">/5</span></span></div>`).join('')}</div>
+      <p class="mt-3 border-t border-leaf/10 pt-3 text-xs leading-5 text-muted">AI’s reading of this entry—not a score of you.</p>
     </section>
     ${card('Observed facts', list(analysis.signals.facts))}
     ${card('Possible assumptions', list(analysis.signals.assumptions))}
     ${analysis.signals.tensions?.length ? card('Competing needs', list(analysis.signals.tensions)) : ''}
     ${card('Paths you could take', list(analysis.signals.options))}
-    ${card('An honest counterpoint', `<p class="text-xs leading-6 text-muted">${escapeHTML(analysis.signals.counterpoint)}</p>`)}
-    <article class="rounded-2xl border border-leaf/15 bg-moss/40 p-4"><h3 class="mb-3 flex items-center gap-2 text-xs font-semibold text-leaf">${icon('lightbulb')}Your 48-hour experiment</h3><p class="text-sm leading-6 font-medium">${escapeHTML(analysis.signals.nextExperiment.action)}</p><p class="mt-2 text-xs leading-6 text-muted">${escapeHTML(analysis.signals.nextExperiment.why)}</p><p class="mt-4 border-t border-leaf/15 pt-3 text-xs leading-6"><span class="font-semibold">Look for:</span> ${escapeHTML(analysis.signals.nextExperiment.checkIn)}</p></article>
-    <p class="px-1 text-[10px] leading-5 text-muted">Generated from this reflection. Keep what’s useful; question the rest.</p>`;
+    ${card('An honest counterpoint', `<p class="text-sm leading-6 text-muted">${escapeHTML(analysis.signals.counterpoint)}</p>`)}
+    <article class="rounded-2xl border border-leaf/15 bg-moss/40 p-4"><h3 class="mb-3 flex items-center gap-2 text-sm font-semibold text-leaf">${icon('lightbulb')}Your 48-hour experiment</h3><p class="text-sm leading-6 font-medium">${escapeHTML(analysis.signals.nextExperiment.action)}</p><p class="mt-2 text-sm leading-6 text-muted">${escapeHTML(analysis.signals.nextExperiment.why)}</p><p class="mt-4 border-t border-leaf/15 pt-3 text-sm leading-6"><span class="font-semibold">Look for:</span> ${escapeHTML(analysis.signals.nextExperiment.checkIn)}</p></article>
+    <p class="px-1 text-xs leading-5 text-muted">Generated from this reflection. Keep what’s useful; question the rest.</p>`;
 }
 
 async function openSession(id) {
-  if (state.deleting || id === state.sessionId) return;
+  if (state.deleting) return;
+  if (id === state.sessionId) {
+    closeDrawer('history');
+    return;
+  }
+  $('#reflection-actions').open = false;
   saveDraft();
   const epoch = ++state.viewEpoch;
   state.busy = false;
@@ -541,12 +545,13 @@ function resizeComposer() {
   const input = $('#message-input');
   input.style.height = 'auto';
   // Intrinsic textarea height is the only runtime style; all visual styling is Tailwind.
-  input.style.height = `${Math.min(input.scrollHeight, 160)}px`;
+  input.style.height = `${Math.min(input.scrollHeight, 128)}px`;
   updateControls();
 }
 
 async function deleteCurrentSession() {
   if (!state.user || !state.sessionId || state.busy || state.loadingSession) return;
+  $('#reflection-actions').open = false;
   showConfirmation('reflection');
 }
 
@@ -582,6 +587,7 @@ function cancelConfirmation() {
   $('#confirm-phrase').value = '';
   $('#confirm-target').textContent = '';
   if (returnToPrivacy && state.user) $('#privacy-dialog').showModal();
+  else if (state.user && state.sessionId) $('#reflection-actions-toggle').focus();
 }
 
 /** Revalidate the captured target, then send the server's exact confirmation. */
@@ -625,6 +631,7 @@ async function confirmDeletion() {
       state.sessions = state.sessions.filter((item) => item.id !== target.id);
     }
     resetSession();
+    $('#message-input').focus();
     await loadSessions();
     toast(erase ? 'Your vault has been permanently erased.' : 'Reflection permanently deleted.');
   } catch (error) {
@@ -789,6 +796,7 @@ $('#sign-out').addEventListener('click', async () => {
   }
 });
 $('#new-session').addEventListener('click', beginNewReflection);
+$('#new-session-quick').addEventListener('click', beginNewReflection);
 $('#delete-session').addEventListener('click', deleteCurrentSession);
 $('#privacy-button').addEventListener('click', () => {
   closeDrawer('history');
@@ -829,16 +837,15 @@ $$('[data-starter]').forEach((button) =>
   }),
 );
 
-for (const name of Object.keys(drawers)) {
-  $('#open-' + name).addEventListener('click', () => openDrawer(name));
-  $('#close-' + name).addEventListener('click', () => closeDrawer(name));
-  $('#' + name + '-dialog').addEventListener('close', () => {
-    if (!$('#' + name + '-dialog').open) restoreDrawer(name);
-  });
-  media[name].addEventListener('change', (event) => {
-    if (event.matches) closeDrawer(name);
-  });
-}
+$('#reflection-actions').addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    $('#reflection-actions').open = false;
+    $('#reflection-actions-toggle').focus();
+  }
+});
+$('#reflection-actions').addEventListener('focusout', (event) => {
+  if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false;
+});
 $('#session-search').addEventListener('input', renderSessions);
 $('#retry-history').addEventListener('click', loadSessions);
 $('#profile-photo').addEventListener('error', () => visible('#profile-photo', false));
@@ -858,7 +865,5 @@ $('#confirm-phrase').addEventListener('input', () => {
 });
 window.addEventListener('online', updateControls);
 window.addEventListener('offline', updateControls);
-window.addEventListener('resize', syncViewportHeight, { passive: true });
-window.visualViewport?.addEventListener('resize', syncViewportHeight, { passive: true });
 
 boot();

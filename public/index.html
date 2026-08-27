@@ -12,7 +12,7 @@
     />
     <meta name="theme-color" content="#182820" />
     <title>Northstar Vault — your space for clarity</title>
-    <link rel="stylesheet" href="/styles.css?v=20260828-tailwind" />
+    <link rel="stylesheet" href="/styles.css?v=20260828-shell" />
   </head>
   <body
     class="min-h-full bg-canvas font-sans text-ink antialiased [color-scheme:light] selection:bg-moss [&_.hidden]:hidden! [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-leaf [&_button]:min-w-12 [&_button]:cursor-pointer [&_button]:touch-manipulation [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-50 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-offset-4 [&_button:focus-visible]:outline-leaf"
@@ -188,20 +188,23 @@
 
     <section
       id="workspace"
-      class="hidden h-dvh min-h-0 min-w-0 overflow-hidden"
+      class="@container/workspace fixed inset-0 hidden h-dvh min-h-0 w-full min-w-0 overflow-hidden"
       aria-label="Northstar Vault workspace"
     >
-      <div class="flex h-full min-h-0 min-w-0">
+      <div
+        id="workspace-grid"
+        class="grid h-full min-h-0 min-w-0 grid-cols-[minmax(0,1fr)] @min-[64rem]/workspace:grid-cols-[16rem_minmax(0,1fr)] @min-[90rem]/workspace:grid-cols-[16rem_minmax(0,1fr)_21rem]"
+      >
         <div
           id="history-slot"
-          class="h-full w-64 shrink-0 border-r border-ink/10 max-lg:hidden lg:block"
+          class="min-h-0 min-w-0 border-r border-ink/10 @max-[64rem]/workspace:hidden"
         >
           <aside
             id="sidebar"
             class="flex h-full min-h-0 w-full flex-col overflow-y-auto bg-canvas [padding-bottom:env(safe-area-inset-bottom)]"
             aria-label="Reflection history"
           >
-            <div class="flex min-h-20 shrink-0 items-center justify-between gap-1 px-5">
+            <div class="flex h-16 shrink-0 items-center justify-between gap-1 px-4">
               <a
                 href="/"
                 class="flex items-center gap-2.5 text-sm font-semibold tracking-tight"
@@ -213,7 +216,7 @@
               >
               <button
                 id="close-history"
-                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 lg:hidden"
+                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 in-[#history-slot]:hidden"
                 aria-label="Close history"
               >
                 <svg class="size-5" aria-hidden="true"><use href="/icons.svg#x"></use></svg>
@@ -227,7 +230,7 @@
                 <svg class="size-4" aria-hidden="true"><use href="/icons.svg#plus"></use></svg>New
                 reflection
               </button>
-              <div class="relative mt-5">
+              <div class="relative mt-3">
                 <svg
                   class="pointer-events-none absolute top-4 left-3 size-4 text-muted"
                   aria-hidden="true"
@@ -243,7 +246,7 @@
                 />
               </div>
               <div
-                class="flex items-center justify-between gap-3 pt-6 pb-2 text-[11px] font-semibold tracking-widest text-muted uppercase"
+                class="flex items-center justify-between gap-3 pt-5 pb-2 text-xs font-semibold tracking-wider text-muted uppercase"
               >
                 <h2 id="history-title">Your reflections</h2>
                 <span id="session-count">0</span>
@@ -301,8 +304,8 @@
                   />
                 </div>
                 <div class="min-w-0">
-                  <p id="profile-name" class="truncate text-xs font-semibold">Private user</p>
-                  <p id="profile-email" class="mt-0.5 truncate text-[11px] text-muted"></p>
+                  <p id="profile-name" class="truncate text-sm font-semibold">Private user</p>
+                  <p id="profile-email" class="mt-0.5 truncate text-xs text-muted"></p>
                 </div>
               </div>
             </div>
@@ -312,72 +315,103 @@
         <main
           id="journal"
           tabindex="-1"
-          class="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-paper"
+          class="@container/chat grid h-full min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)_auto] bg-paper"
         >
-          <header
-            class="flex min-h-20 shrink-0 items-center gap-2 border-b border-ink/10 px-3 sm:px-6"
-          >
-            <button
-              id="open-history"
-              aria-label="Open reflection history"
-              aria-controls="history-dialog"
-              aria-expanded="false"
-              class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 lg:hidden"
+          <div class="relative z-10 min-w-0 bg-paper">
+            <header
+              class="flex h-16 min-w-0 items-center gap-1 border-b border-ink/10 px-2 @min-[40rem]/chat:gap-2 @min-[40rem]/chat:px-6"
             >
-              <svg class="size-5" aria-hidden="true"><use href="/icons.svg#menu"></use></svg>
-            </button>
-            <div class="min-w-0 flex-1 py-3">
-              <h1
-                id="session-title"
-                class="truncate text-sm font-semibold tracking-tight sm:text-base"
+              <button
+                id="open-history"
+                aria-label="Open reflection history"
+                aria-controls="history-dialog"
+                aria-expanded="false"
+                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 @min-[64rem]/workspace:hidden"
               >
-                New reflection
-              </h1>
-              <p class="mt-1 flex items-center gap-1.5 text-[11px] text-muted">
-                <svg class="size-3 shrink-0" aria-hidden="true">
-                  <use href="/icons.svg#lock-keyhole"></use></svg
-                ><span id="session-status">Only in your private vault</span>
-              </p>
+                <svg class="size-5" aria-hidden="true"><use href="/icons.svg#menu"></use></svg>
+              </button>
+              <div class="min-w-0 flex-1 py-2">
+                <h1
+                  id="session-title"
+                  class="truncate text-sm font-semibold tracking-tight @min-[40rem]/chat:text-base"
+                >
+                  New reflection
+                </h1>
+                <p class="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted">
+                  <svg class="size-3 shrink-0" aria-hidden="true">
+                    <use href="/icons.svg#lock-keyhole"></use></svg
+                  ><span id="session-status" class="truncate">Private reflection</span>
+                </p>
+              </div>
+              <button
+                id="new-session-quick"
+                aria-label="Start a new reflection"
+                title="New reflection"
+                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 @min-[64rem]/workspace:hidden"
+              >
+                <svg class="size-5" aria-hidden="true">
+                  <use href="/icons.svg#square-pen"></use>
+                </svg>
+              </button>
+              <button
+                id="open-signal"
+                aria-label="Open Signal Map"
+                aria-controls="signal-dialog"
+                aria-expanded="false"
+                title="Signal Map"
+                class="relative flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full px-3 text-sm font-medium text-leaf hover:bg-leaf/5 @min-[90rem]/workspace:hidden"
+              >
+                <svg class="size-5" aria-hidden="true">
+                  <use href="/icons.svg#panel-right"></use></svg
+                ><span class="@max-[36rem]/chat:hidden">Signal Map</span
+                ><span
+                  id="signal-ready-dot"
+                  class="absolute top-2 right-2 hidden size-1.5 rounded-full bg-leaf"
+                ></span>
+              </button>
+              <details id="reflection-actions" class="relative hidden shrink-0">
+                <summary
+                  id="reflection-actions-toggle"
+                  aria-label="Reflection actions"
+                  title="Reflection actions"
+                  class="grid size-12 cursor-pointer list-none place-items-center rounded-full text-muted hover:bg-ink/5 focus-visible:outline-2 focus-visible:outline-leaf [&::-webkit-details-marker]:hidden"
+                >
+                  <svg class="size-5" aria-hidden="true">
+                    <use href="/icons.svg#ellipsis"></use>
+                  </svg>
+                </summary>
+                <div
+                  class="absolute top-full right-0 z-20 mt-1 w-60 rounded-2xl border border-ink/10 bg-paper p-2 shadow-xl"
+                >
+                  <button
+                    id="delete-session"
+                    aria-label="Delete this reflection"
+                    class="flex hidden min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm text-red-800 hover:bg-red-50"
+                  >
+                    <svg class="size-5 shrink-0" aria-hidden="true">
+                      <use href="/icons.svg#trash-2"></use></svg
+                    >Delete reflection
+                  </button>
+                </div>
+              </details>
+            </header>
+            <div
+              id="offline-banner"
+              role="status"
+              class="flex hidden items-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs leading-5 text-amber-950"
+            >
+              <svg class="size-4 shrink-0" aria-hidden="true">
+                <use href="/icons.svg#wifi-off"></use></svg
+              >You’re offline. Your draft stays here while this page is open.
             </div>
-            <button
-              id="delete-session"
-              aria-label="Delete this reflection"
-              title="Delete reflection"
-              class="grid hidden size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-red-50 hover:text-red-700"
-            >
-              <svg class="size-5" aria-hidden="true"><use href="/icons.svg#trash-2"></use></svg>
-            </button>
-            <button
-              id="open-signal"
-              aria-label="Open Signal Map"
-              aria-controls="signal-dialog"
-              aria-expanded="false"
-              class="relative flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-ink/10 px-3 text-xs font-medium text-leaf hover:bg-leaf/5 sm:px-4 xl:hidden"
-            >
-              <svg class="size-5" aria-hidden="true"><use href="/icons.svg#panel-right"></use></svg
-              ><span class="max-sm:hidden sm:inline">Signal Map</span
-              ><span
-                id="signal-ready-dot"
-                class="absolute top-2 right-2 hidden size-1.5 rounded-full bg-leaf"
-              ></span>
-            </button>
-          </header>
-          <div
-            id="offline-banner"
-            role="status"
-            class="flex hidden shrink-0 items-center gap-2 border-b border-amber-200 bg-amber-50 px-5 py-3 text-xs leading-5 text-amber-950"
-          >
-            <svg class="size-4 shrink-0" aria-hidden="true">
-              <use href="/icons.svg#wifi-off"></use></svg
-            >You’re offline. Your draft stays here while this page is open.
           </div>
-          <div class="relative min-h-0 flex-1">
+          <div class="relative min-h-0 min-w-0">
             <div
               id="conversation"
               role="region"
               tabindex="0"
               aria-label="Reflection conversation"
-              class="h-full min-h-0 overflow-y-auto overscroll-contain px-4 outline-offset-[-4px] sm:px-8"
+              class="h-full min-h-0 overflow-y-auto overscroll-contain px-4 outline-offset-[-4px] @min-[40rem]/chat:px-8"
             >
               <div
                 id="history-loading"
@@ -390,10 +424,10 @@
               </div>
               <section
                 id="empty-state"
-                class="mx-auto flex min-h-full max-w-2xl flex-col justify-center py-8 sm:py-12"
+                class="mx-auto flex min-h-full max-w-3xl flex-col justify-center py-6 @min-[40rem]/chat:py-10"
               >
                 <span
-                  class="mb-6 grid size-12 place-items-center rounded-2xl border border-leaf/15 bg-leaf/5 text-leaf"
+                  class="mb-4 grid size-10 place-items-center rounded-2xl border border-leaf/15 bg-leaf/5 text-leaf"
                   ><svg class="size-6" aria-hidden="true">
                     <use href="/icons.svg#sparkles"></use></svg
                 ></span>
@@ -401,17 +435,17 @@
                   Your space for clarity
                 </p>
                 <h2
-                  class="mt-3 text-3xl leading-tight font-medium tracking-[-0.04em] sm:text-4xl 2xl:text-5xl"
+                  class="mt-3 text-3xl leading-tight font-medium tracking-[-0.04em] @min-[40rem]/chat:text-4xl"
                 >
                   What’s on<br /><span class="font-display font-normal text-leaf italic"
                     >your mind today?</span
                   >
                 </h2>
-                <p class="mt-4 max-w-md text-sm leading-6 text-muted sm:text-base sm:leading-7">
+                <p class="mt-4 max-w-md text-base leading-7 text-muted">
                   Start with a decision, a moment, or an idea. Write it imperfectly. We’ll find the
                   next step together.
                 </p>
-                <div class="mt-7 grid gap-2 sm:grid-cols-3">
+                <div class="mt-6 grid gap-2 @min-[36rem]/chat:grid-cols-3">
                   <button
                     data-starter="I’m circling a decision and want to see the facts, assumptions, and real options clearly."
                     class="group flex min-w-0 items-center gap-3 rounded-2xl border border-ink/10 p-4 text-left transition hover:border-leaf/40 hover:bg-leaf/5 motion-reduce:transition-none sm:block"
@@ -459,7 +493,7 @@
                 aria-label="Messages"
                 aria-live="polite"
                 aria-relevant="additions"
-                class="mx-auto max-w-2xl space-y-7 py-7 empty:hidden sm:space-y-9 sm:py-10"
+                class="mx-auto max-w-3xl space-y-6 py-6 empty:hidden @min-[40rem]/chat:space-y-8 @min-[40rem]/chat:py-8"
               ></div>
             </div>
             <button
@@ -471,68 +505,64 @@
             </button>
           </div>
           <div
-            class="max-h-[60dvh] shrink-0 overflow-y-auto overscroll-contain bg-paper px-3 pt-2 [padding-bottom:max(0.65rem,env(safe-area-inset-bottom))] sm:px-8"
+            id="composer-region"
+            class="max-h-[45dvh] min-w-0 overflow-y-auto overscroll-contain border-t border-ink/5 bg-paper px-3 pt-3 [padding-bottom:max(0.5rem,env(safe-area-inset-bottom))] @min-[40rem]/chat:px-8"
           >
             <form
               id="composer"
-              class="mx-auto max-w-2xl rounded-3xl border border-ink/20 bg-white p-3 shadow-[0_3px_18px_-10px_#18282030] transition focus-within:border-leaf/60 focus-within:ring-2 focus-within:ring-leaf/10 motion-reduce:transition-none"
+              class="mx-auto flex max-w-3xl min-w-0 items-end gap-2 rounded-3xl border border-ink/20 bg-white p-2 shadow-sm transition focus-within:border-leaf/60 focus-within:ring-2 focus-within:ring-leaf/10 motion-reduce:transition-none"
             >
               <label class="sr-only" for="message-input">Your private reflection</label>
               <textarea
                 id="message-input"
                 maxlength="4000"
-                rows="2"
+                rows="1"
                 aria-describedby="composer-hint composer-feedback"
                 placeholder="Write what’s on your mind…"
-                class="block max-h-[min(10rem,25dvh)] min-h-14 w-full resize-none bg-transparent px-2 py-1 text-base leading-7 outline-none placeholder:text-muted"
+                class="block max-h-[min(8rem,20dvh)] min-h-12 w-full min-w-0 flex-1 resize-none bg-transparent px-3 py-3 text-base leading-6 outline-none placeholder:text-muted"
               ></textarea>
-              <div class="flex min-h-12 items-end justify-between gap-2">
-                <div class="min-w-0 px-2 pb-2">
-                  <span
-                    id="composer-hint"
-                    class="flex items-center gap-1.5 text-[11px] leading-5 text-muted"
-                    ><svg class="size-3.5 shrink-0" aria-hidden="true">
-                      <use href="/icons.svg#lock-keyhole"></use></svg
-                    >Private reflection<span class="max-sm:hidden sm:inline">
-                      · Ctrl / ⌘ + Enter to send</span
-                    ></span
-                  ><span id="character-count" class="hidden text-[11px] text-muted"></span>
-                </div>
-                <button
-                  id="send-button"
-                  type="submit"
-                  disabled
-                  aria-label="Send reflection"
-                  class="grid size-12 shrink-0 place-items-center rounded-full bg-ink text-moss transition hover:bg-leaf disabled:bg-ink/10 disabled:text-muted motion-reduce:transition-none"
+              <button
+                id="send-button"
+                type="submit"
+                disabled
+                aria-label="Send reflection"
+                class="grid size-12 shrink-0 place-items-center rounded-full bg-ink text-moss transition hover:bg-leaf disabled:bg-ink/10 disabled:text-muted motion-reduce:transition-none"
+              >
+                <svg id="send-icon" class="size-5" aria-hidden="true">
+                  <use href="/icons.svg#arrow-up"></use></svg
+                ><svg
+                  id="send-spinner"
+                  class="hidden size-5 animate-spin motion-reduce:animate-none"
+                  aria-hidden="true"
                 >
-                  <svg id="send-icon" class="size-5" aria-hidden="true">
-                    <use href="/icons.svg#arrow-up"></use></svg
-                  ><svg
-                    id="send-spinner"
-                    class="hidden size-5 animate-spin motion-reduce:animate-none"
-                    aria-hidden="true"
-                  >
-                    <use href="/icons.svg#loader-circle"></use>
-                  </svg>
-                </button>
-              </div>
+                  <use href="/icons.svg#loader-circle"></use>
+                </svg>
+              </button>
             </form>
             <p
               id="composer-feedback"
               role="status"
-              class="mx-auto mt-2 hidden max-w-2xl px-2 text-xs leading-5 text-red-800"
+              class="mx-auto mt-2 hidden max-h-20 max-w-3xl overflow-y-auto px-2 text-sm leading-5 text-red-800"
             ></p>
-            <p
-              class="mx-auto mt-2 max-w-2xl px-2 text-center text-[10px] leading-4 text-muted sm:text-[11px]"
+            <div
+              class="mx-auto mt-2 flex max-w-3xl flex-wrap items-center justify-between gap-x-3 gap-y-1 px-1 text-xs leading-5 text-muted [@media(max-height:450px)]:hidden"
             >
-              AI can make mistakes. Reflection support, not professional advice.
-            </p>
+              <span id="composer-hint" class="flex items-center gap-1.5"
+                ><svg class="size-3 shrink-0" aria-hidden="true">
+                  <use href="/icons.svg#lock-keyhole"></use></svg
+                >Private<span class="@max-[40rem]/chat:hidden">
+                  · Ctrl / ⌘ + Enter to send</span
+                ></span
+              >
+              <span id="character-count" class="hidden"></span>
+              <span>AI can make mistakes.</span>
+            </div>
           </div>
         </main>
 
         <div
           id="signal-slot"
-          class="h-full w-80 shrink-0 border-l border-ink/10 max-xl:hidden xl:block 2xl:w-88"
+          class="min-h-0 min-w-0 border-l border-ink/10 @max-[90rem]/workspace:hidden"
         >
           <aside
             id="signal-panel"
@@ -540,15 +570,12 @@
             aria-labelledby="signal-title"
           >
             <header
-              class="flex min-h-20 shrink-0 items-center justify-between gap-3 border-b border-ink/10 px-5"
+              class="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-ink/10 px-5"
             >
               <div>
-                <p class="text-[10px] font-semibold tracking-widest text-muted uppercase">
-                  A little perspective
-                </p>
                 <h2
                   id="signal-title"
-                  class="mt-1 flex items-center gap-2 text-base font-semibold tracking-tight"
+                  class="flex items-center gap-2 text-base font-semibold tracking-tight"
                 >
                   <svg class="size-4 text-leaf" aria-hidden="true">
                     <use href="/icons.svg#sparkles"></use></svg
@@ -557,16 +584,17 @@
               </div>
               <button
                 id="close-signal"
-                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 xl:hidden"
+                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 in-[#signal-slot]:hidden"
                 aria-label="Close Signal Map"
               >
                 <svg class="size-5" aria-hidden="true"><use href="/icons.svg#x"></use></svg></button
-              ><svg class="size-4 text-muted max-xl:hidden xl:block" aria-label="Private">
+              ><svg class="size-4 text-muted in-[#signal-dialog]:hidden" aria-label="Private">
                 <use href="/icons.svg#lock-keyhole"></use>
               </svg>
             </header>
             <div
-              class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-leaf"
+              id="signal-insights"
+              class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-leaf"
               tabindex="0"
               role="region"
               aria-label="Signal Map insights"
@@ -602,12 +630,12 @@
     <dialog
       id="history-dialog"
       aria-label="Reflection history"
-      class="fixed inset-y-0 right-auto left-0 m-0 h-dvh max-h-none w-[min(88vw,21rem)] max-w-none border-0 bg-canvas p-0 text-ink shadow-2xl backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+      class="fixed inset-y-0 right-auto left-0 m-0 h-dvh max-h-none w-[min(90vw,21rem)] max-w-none overflow-hidden border-0 bg-canvas p-0 text-ink shadow-2xl backdrop:bg-ink/40"
     ></dialog>
     <dialog
       id="signal-dialog"
       aria-label="Signal Map"
-      class="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-full max-w-md border-0 bg-canvas p-0 text-ink shadow-2xl backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+      class="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[min(100vw,25rem)] max-w-none overflow-hidden border-0 bg-canvas p-0 text-ink shadow-2xl backdrop:bg-ink/40"
     ></dialog>
 
     <dialog
@@ -834,6 +862,6 @@
         </div>
       </form>
     </dialog>
-    <script type="module" src="/app.js?v=20260828-tailwind"></script>
+    <script type="module" src="/app.js?v=20260828-shell"></script>
   </body>
 </html>

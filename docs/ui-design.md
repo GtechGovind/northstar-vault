@@ -22,22 +22,34 @@ treated as an exact CSS-pixel device classification.
 
 ## Layout contract
 
-| Available width | Persistent content                         | On-demand content                                |
-| --------------- | ------------------------------------------ | ------------------------------------------------ |
-| Below 1024px    | Full-width chat                            | History and Signal Map in labelled modal drawers |
-| 1024–1279px     | 256px history + flexible chat              | Signal Map drawer                                |
-| 1280px and up   | History + flexible chat + 320px Signal Map | Privacy/confirmation dialogs                     |
-| 1536px and up   | Same structure, with 352px Signal Map      | Same dialogs                                     |
+| Shell width (16px base font) | Persistent content                         | On-demand content                                |
+| ---------------------------- | ------------------------------------------ | ------------------------------------------------ |
+| Below 1024px                 | Full-width chat                            | History and Signal Map in labelled modal drawers |
+| 1024–1439px                  | 256px history + flexible chat              | Signal Map drawer                                |
+| 1440px and up                | History + flexible chat + 336px Signal Map | Privacy/confirmation dialogs                     |
+
+The workspace is a bounded, full-window grid, not an unconstrained row of fixed
+panels. Tailwind **container queries** at 64rem and 90rem are the only breakpoint
+source. `workspace-layout.js` reads the rendered slots and observes the shell;
+there is no separate JavaScript pixel breakpoint to drift out of sync. Content
+inside the chat uses its own named container queries.
 
 The chat column has `min-w-0` and `min-h-0`, not a fixed minimum width.
-The conversation scrolls independently; the composer occupies its own flex row.
+Its grid has three explicit rows: header, `minmax(0, 1fr)` conversation, and
+composer. Only the conversation scrolls during normal reading. The compact
+single-line composer grows up to a bounded height without pushing itself offscreen.
+The header is 64px and the empty composer form is 66px at the default font size.
+Short-height windows hide optional hints, not the input or send control.
 Messages and SHA-256 values wrap even without whitespace. The reading width is
 bounded, rather than stretched across an ultrawide display.
 
-The workspace uses dynamic viewport height, safe-area padding, and the browser’s
-visual viewport to accommodate on-screen keyboards. The textarea is capped by
-both content height and available viewport height. These two measured dimensions
-are the **only runtime inline styles**; there are no authored custom CSS selectors
+The workspace uses dynamic viewport height and safe-area padding. CSS controls
+ordinary desktop/browser resizing; JavaScript no longer pins every desktop height
+to a pixel measurement. A visual-viewport height override is used only when a
+keyboard reduces the visible height at scale 1, and removed when it closes.
+Pinch zoom is left to the browser. The textarea is capped by both content height
+and available viewport height. These two measured dimensions are the **only
+runtime inline styles**; there are no authored custom CSS selectors
 or `@apply` component styles. Physical Safari/Android keyboard testing remains a
 separate device check; desktop viewport emulation is not a substitute for it.
 
@@ -49,6 +61,11 @@ Crossing the desktop breakpoint restores the panel to its permanent slot.
 Buttons have accessible names, visible keyboard focus, and explicit disabled
 states. Loading and errors are announced through live regions. Reduced-motion
 preferences disable decorative transitions/spinners.
+
+New reflection is directly accessible in the compact header. Destructive actions
+live in a labelled native disclosure, away from the primary send action. Cancelling
+the deletion dialog returns focus to the disclosure trigger, not a hidden button.
+History and Signal Map use 14px body text; message text uses 16px/28px for reading.
 
 Search filters the loaded reflection titles/tags locally. The current API returns
 the newest 50 reflections; this is not an unlimited full-vault search.
@@ -74,7 +91,8 @@ This test-only toolbar and axe-core are excluded from the production image.
 
 Use the local emulator preview for synthetic interaction tests:
 
-- Open chat at 320, 390, 768, 1024, 1280, and 1440px; include a short landscape view.
+- Open chat at 320, 360, 390, 768, 1024, 1280, 1440, and 1920px; include 320×360
+  and 640×360 short windows.
 - Confirm no document-level horizontal scrolling or clipped send button.
 - Test long unbroken strings, multiline drafts, and the 4,000-character limit.
 - Open/close each drawer; use Escape and Tab; resize while a drawer is open.
@@ -84,6 +102,12 @@ Use the local emulator preview for synthetic interaction tests:
 - Sign out while a request is pending; ensure no late private DOM or download.
 - Use real authenticated production smoke tests separately; never label emulator
   replies as a successful Gemini/provider check.
+
+Always inspect a **fresh, non-emulated browser tab at the actual window size** as
+well as the device-size matrix. A retained browser testing override can report a
+larger viewport than the physical content area and create clipped screenshots even
+when DOM bounds checks pass. Reset overrides and close disposable emulated tabs
+after testing. Do not treat emulated geometry alone as visual acceptance.
 
 Automated tests cover the private-state race boundaries, confirmation targets,
 draft recovery, panel ownership, unique IDs, compiled assets, API failures, and

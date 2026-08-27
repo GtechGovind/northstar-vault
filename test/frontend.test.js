@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 import { createPrivacyReceipt } from '../public/privacy-receipt.js';
+import { createWorkspaceLayout } from '../public/workspace-layout.js';
 
 // Unit harness only: execute the real frontend with inert DOM/Firebase doubles.
 // Browser sign-in itself is verified separately against the live deployment.
@@ -25,6 +26,7 @@ function harness(fetchImpl, makeReceipt = createPrivacyReceipt) {
           delete this[name];
         },
       },
+      parentElement: null,
       dataset: {},
       disabled: false,
       scrollHeight: 100,
@@ -48,6 +50,7 @@ function harness(fetchImpl, makeReceipt = createPrivacyReceipt) {
         children.forEach((child) => {
           child.remove();
           child.parent = this;
+          child.parentElement = this;
           this.children.push(child);
         });
       },
@@ -61,7 +64,9 @@ function harness(fetchImpl, makeReceipt = createPrivacyReceipt) {
       getAttribute(name) {
         return this[name];
       },
-      focus() {},
+      focus() {
+        this.focused = true;
+      },
       close() {
         this.open = false;
       },
@@ -94,7 +99,11 @@ function harness(fetchImpl, makeReceipt = createPrivacyReceipt) {
     Blob,
     AbortController,
     window: {
-      matchMedia: () => ({ matches: false, addEventListener() {} }),
+      document: { documentElement: { clientHeight: 900 } },
+      getComputedStyle: (node) => ({ display: node.docked ? 'block' : 'none' }),
+      ResizeObserver: class {
+        observe() {}
+      },
       addEventListener() {},
     },
     navigator: { onLine: true, clipboard: { writeText: async () => {} } },
@@ -107,6 +116,7 @@ function harness(fetchImpl, makeReceipt = createPrivacyReceipt) {
     },
     fetch: fetchImpl,
     createPrivacyReceipt: makeReceipt,
+    createWorkspaceLayout: (options) => createWorkspaceLayout({ ...options, view: context.window }),
     console,
     setTimeout: () => 1,
     clearTimeout() {},
@@ -284,7 +294,7 @@ test('offline and empty drafts cannot make a chat request', async () => {
 
 test('mobile drawers move one panel, restore it, and report their expanded state', () => {
   const app = harness();
-  app.run("openDrawer('history')");
+  app.run("layout.open('history')");
   assert.equal(app.select('#history-dialog').open, true);
   assert.equal(app.select('#sidebar').parent, app.select('#history-dialog'));
   assert.equal(app.select('#open-history')['aria-expanded'], 'true');
@@ -292,6 +302,38 @@ test('mobile drawers move one panel, restore it, and report their expanded state
   assert.equal(app.select('#history-dialog').open, false);
   assert.equal(app.select('#sidebar').parent, app.select('#history-slot'));
   assert.equal(app.select('#open-history')['aria-expanded'], 'false');
+});
+
+test('docked panels cannot open a duplicate modal, and resizing restores an open drawer', () => {
+  const app = harness();
+  app.select('#history-slot').docked = true;
+  app.run("layout.open('history')");
+  assert.notEqual(app.select('#history-dialog').open, true);
+  app.select('#history-slot').docked = false;
+  app.run("layout.open('history')");
+  assert.equal(app.select('#history-dialog').open, true);
+  app.select('#history-slot').docked = true;
+  app.run('layout.sync()');
+  assert.equal(app.select('#history-dialog').open, false);
+  assert.equal(app.select('#sidebar').parentElement, app.select('#history-slot'));
+  assert.equal(app.select('#new-session').focused, true);
+});
+
+test('opening one drawer closes the other and unauthenticated drawers stay closed', () => {
+  const app = harness();
+  app.run("layout.open('history'); layout.open('signal')");
+  assert.equal(app.select('#history-dialog').open, false);
+  assert.equal(app.select('#signal-dialog').open, true);
+  app.run("layout.close('signal'); state.user = null; layout.open('history')");
+  assert.equal(app.select('#history-dialog').open, false);
+});
+
+test('workspace height returns to CSS after the keyboard closes', () => {
+  const app = harness();
+  app.run('window.visualViewport = {height: 496, scale: 1}; layout.sync()');
+  assert.equal(app.select('#workspace').style.height, '496px');
+  app.run('window.visualViewport.height = 900; layout.sync()');
+  assert.equal(app.select('#workspace').style.height, undefined);
 });
 
 test('a confirmation alone cannot delete data; cancel clears its target', async () => {
@@ -347,7 +389,7 @@ test('vault erasure requires the exact phrase and uses the authenticated API', a
 test('sign-out clears drafts and private confirmation contents across every panel', () => {
   const app = harness();
   app.run(
-    "state.drafts.set('private', 'Private draft'); showConfirmation('vault'); openDrawer('signal'); state.user = null; showLanding()",
+    "state.drafts.set('private', 'Private draft'); showConfirmation('vault'); layout.open('signal'); state.user = null; showLanding()",
   );
   assert.equal(app.run('state.drafts.size'), 0);
   assert.equal(app.run('state.confirmation'), null);

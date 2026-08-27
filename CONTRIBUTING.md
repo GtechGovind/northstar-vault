@@ -5,17 +5,18 @@ Run `npm ci` from the repository root. Development tools are pinned in the lockf
 
 ## Daily commands
 
-| Command                 | Purpose                                                                   |
-| ----------------------- | ------------------------------------------------------------------------- |
-| `npm run build`         | Generate the local Lucide sprite and compile Tailwind CSS                 |
-| `npm run dev`           | Restart the Express server when backend source changes                    |
-| `npm run dev:css`       | Rebuild Tailwind while editing HTML or frontend JavaScript                |
-| `npm run format`        | Format maintained code, HTML, JSON, YAML, CSS input, and Markdown         |
-| `npm run format:check`  | Check formatting without changing files                                   |
-| `npm run lint`          | Run ESLint with no warnings allowed                                       |
-| `npm run check`         | Formatting, lint, asset build, and unit/HTTP/UI-contract tests            |
-| `npm run test:security` | Verify isolation and erasure against local Auth/Firestore emulators       |
-| `npm run test:ui`       | Start the real frontend and API with synthetic emulator data on port 3035 |
+| Command                                                  | Purpose                                                                   |
+| -------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `npm run build`                                          | Generate the local Lucide sprite and compile Tailwind CSS                 |
+| `npm run dev`                                            | Restart the Express server when backend source changes                    |
+| `npm run dev:css`                                        | Rebuild Tailwind while editing HTML or frontend JavaScript                |
+| `npm run format`                                         | Format maintained code, HTML, JSON, YAML, CSS input, and Markdown         |
+| `npm run format:check`                                   | Check formatting without changing files                                   |
+| `npm run lint`                                           | Run ESLint with no warnings allowed                                       |
+| `npm run check`                                          | Formatting, lint, asset build, and unit/HTTP/UI-contract tests            |
+| `npm run test:security`                                  | Verify isolation and erasure against local Auth/Firestore emulators       |
+| `npm run test:ui`                                        | Start the real frontend and API with synthetic emulator data on port 3035 |
+| `npm run verify:release -- https://your-service.run.app` | Read-only deployed asset, health, auth-rejection, and cache-header checks |
 
 The local UI test uses a deliberately synthetic account and deterministic AI replies.
 It is for reproducible interaction testing, not proof of a real Gemini response.
@@ -29,18 +30,20 @@ your account. Never use customer journal content as test fixtures.
 
 ## Code map
 
-| Location                    | Responsibility                                                              |
-| --------------------------- | --------------------------------------------------------------------------- |
-| `public/index.html`         | Semantic page structure, accessible dialogs, Tailwind utilities             |
-| `public/app.js`             | Firebase sign-in, private state, requests, responsive panels, confirmations |
-| `public/privacy-receipt.js` | Bounded local SHA-256 receipt computation                                   |
-| `ui/tailwind.css`           | Tailwind source declarations and brand tokens only                          |
-| `scripts/build-icons.mjs`   | Build self-hosted icons from the licensed Lucide package                    |
-| `src/server.js`             | Authenticated API, schemas, limits, storage transactions, safe errors       |
-| `src/firebase.js`           | Verified identity and owner-scoped Firestore access                         |
-| `src/ai.js`                 | Server-only provider configuration and normalized structured output         |
-| `test/`                     | Fast unit, HTTP, private-state, and UI-contract tests                       |
-| `security/`                 | Real Firebase emulator token/rules/isolation/deletion tests                 |
+| Location                     | Responsibility                                                             |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `public/index.html`          | Semantic page structure, accessible dialogs, Tailwind utilities            |
+| `public/app.js`              | Firebase sign-in, private state, requests, confirmations, rendering        |
+| `public/workspace-layout.js` | Container-aware modal/docked panels and keyboard viewport adaptation       |
+| `public/privacy-receipt.js`  | Bounded local SHA-256 receipt computation                                  |
+| `ui/tailwind.css`            | Tailwind source declarations and brand tokens only                         |
+| `scripts/build-icons.mjs`    | Build self-hosted icons from the licensed Lucide package                   |
+| `scripts/verify-release.mjs` | Compare deployed assets with the checkout without tokens or write requests |
+| `src/server.js`              | Authenticated API, schemas, limits, storage transactions, safe errors      |
+| `src/firebase.js`            | Verified identity and owner-scoped Firestore access                        |
+| `src/ai.js`                  | Server-only provider configuration and normalized structured output        |
+| `test/`                      | Fast unit, HTTP, private-state, and UI-contract tests                      |
+| `security/`                  | Real Firebase emulator token/rules/isolation/deletion tests                |
 
 ## Change checklist
 

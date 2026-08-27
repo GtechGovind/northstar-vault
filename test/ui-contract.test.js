@@ -12,7 +12,9 @@ test('HTML has unique identifiers and labelled native dialogs', async () => {
     assert.match(html, new RegExp('<dialog\\s+[^>]*id="' + id + '"[^>]*aria-label(?:ledby)?='));
   }
   assert.match(html, /interactive-widget=resizes-content/);
-  assert.match(html, /h-dvh/);
+  assert.match(html, /fixed inset-0 hidden h-dvh/);
+  assert.match(html, /@container\/workspace/);
+  assert.match(html, /grid-rows-\[auto_minmax\(0,1fr\)_auto\]/);
   assert.match(html, /wrap-anywhere/);
   assert.match(html, /motion-reduce:/);
 });
@@ -40,4 +42,14 @@ test('native blocking JS prompts and test auth never enter the production fronte
   assert.match(docker, /npm run build/);
   assert.match(docker, /npm prune --omit=dev/);
   assert.match(docker, /USER app/);
+});
+
+test('layout uses one CSS breakpoint source and only measures the on-screen keyboard', async () => {
+  const source = await read('public/workspace-layout.js');
+  assert.doesNotMatch(source, /matchMedia/);
+  assert.match(source, /getComputedStyle/);
+  assert.match(source, /keyboardViewportHeight/);
+  const html = await read('public/index.html');
+  assert.match(html, /@min-\[64rem\]\/workspace/);
+  assert.match(html, /@min-\[90rem\]\/workspace/);
 });
