@@ -2,7 +2,7 @@
 
 *Govind Yadav · Gen AI Academy APAC · 27 August 2026*
 
-**Updated 27 August 2026:** Northstar's current release calls the Gemini Developer API using a pinned Secret Manager credential and includes the AI Studio-generated local Privacy Receipt. The walkthrough below reflects this release; [verification notes](production-verification.md) distinguish current checks from the earlier Vertex build.
+**Updated 28 August 2026:** Northstar's current release calls the Gemini Developer API using a pinned Secret Manager credential and includes the AI Studio-generated local Privacy Receipt. The walkthrough below reflects this release; [verification notes](production-verification.md) distinguish current checks from the earlier Vertex build.
 
 An AI demo can produce an impressive answer in seconds. A useful application has
 to do more: understand the user's context, protect their data, handle failure and
@@ -59,8 +59,9 @@ boundaries visible and testable.
    It is not proof of erasure, encryption or server authenticity.
 6. Review the deletion controls and their limits before using them on your own
    data. They require explicit confirmation. Automated tests cover deletion and
-   late-reply protection; the final live test-only erasure check is still
-   approval-gated. Signing out clears the private view.
+   late-reply protection. A live synthetic-only vault was erased successfully and
+   remained empty after reload; final single-reflection cleanup verification is
+   still pending. Signing out clears the private view.
 
 The walkthrough is based on synthetic production tests, not a fabricated sample
 presented as a live answer. Model wording varies. The repository includes

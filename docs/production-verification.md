@@ -12,6 +12,14 @@ Gemini/Secret Manager release `northstar-vault-gemini0827` (source `e3b9068`) pr
 - The Privacy Center generated a receipt for **one reflection, four messages and 2,607 UTF-8 bytes**, at `2026-08-27T17:35:09.354Z`. Its displayed SHA-256 was `4b753a769938256abd9d50bb67e58bb50928e0d38c33627cd40d90cd0afce9e9`. The current-release UI reported a successful export; the independently verified downloaded-file result below is from the preceding receipt release, not this new file.
 - Unit/HTTP/client/receipt checks, emulator security checks and the complete dependency audit were rerun for this release: **27 + 9 checks passed; 0 reported vulnerabilities**.
 
+## Final live checks and submission — 28 August 2026
+
+- After explicit approval, the owner completed the native full-vault confirmation for the synthetic-only account B. The application reported **“Your vault has been permanently erased.”** Its history was empty and remained empty after a full reload and authentication restoration.
+- Signing back into account A showed its separate vault with the four existing reflections and the one explicitly labeled synthetic test reflection. B's erasure had not removed A's entries. Only A's synthetic reflection was selected for cleanup; its native single-entry confirmation is awaiting completion/verification after browser-control interruption. No single-entry success is claimed yet.
+- The approved replacement text was saved to the existing [LinkedIn demo post](https://www.linkedin.com/feed/update/urn:li:activity:7498550271413809152/). Its published content includes Gemini Developer API, the pinned Secret Manager credential, the blog walkthrough and `#AccelerateAIwithCloudRun`.
+- The corrected 1,011-character brief, three public links and all five service declarations were submitted through the portal's **attempt 3** confirmation. Reloading the form retained the corrected content and checked declarations; the Submissions dashboard displayed **Submitted**. No extra attempt was made.
+- Submission and post screenshots are retained in the owner's workspace. A saved submission is not an organizer eligibility ruling, assessment result or prize guarantee.
+
 ## Earlier receipt and security release evidence
 
 The AI Studio-generated Privacy Receipt was first deployed in `northstar-vault-receipt0827`. [Original output and reviewed changes](ai-studio/README.md) are preserved separately. That release retained Vertex mode, the model, service identity and maximum of three instances; no permission or billing change was made by it.
@@ -28,7 +36,7 @@ The AI Studio-generated Privacy Receipt was first deployed in `northstar-vault-r
 - That earlier release used `GOOGLE_GENAI_USE_VERTEXAI=1`, model `gemini-3.1-flash-lite`. The current release above supersedes its provider configuration.
 - A real signed-in production reflection using explicitly synthetic text generated a structured reply and Signal Map after promotion.
 - A second real Google account signed in successfully and initially saw an empty vault, without the first account's existing or synthetic entries. Its own synthetic reflection also produced a real structured response. No project IAM access was granted to that second account.
-- The earlier live full-vault confirmation check was interrupted by browser-control failure. After recovery the synthetic entry remained present. No live erasure success is claimed; fresh approval for test-only deletion/erasure has been requested. Existing journal entries were not targeted.
+- The earlier live full-vault confirmation check was interrupted by browser-control failure. At that point the synthetic entry remained present. The completed 28 August verification above supersedes that unresolved result. Existing journal entries were not targeted.
 - Public configuration contains only `apiKey`, `authDomain`, `projectId`, and `appId` for Firebase, not a Gemini key.
 - No IAM grant, billing change, key rotation, or cloud-region change was made by this security release. Existing scaling was preserved.
 
@@ -83,7 +91,7 @@ These tests use deterministic in-process model output and are **not** a substitu
 
 ## Remaining manual checks
 
-- Complete the approval-gated production deletion/cleanup checks. Separate real-account sign-in and vault display passed; authenticated cross-ID API denial is proven by the guarded emulator suite, not by production token replay.
-- Delete only the explicitly synthetic test reflection in account A, preserving its four existing reflections, and test full-vault erase only on the synthetic-only account B. No live erasure success is claimed yet.
-- Obtain approval to save the refreshed existing LinkedIn demo post and submit the corrected Ideathon brief. The Secret Manager declaration is now supported by the verified runtime.
+- Complete/verify only the selected synthetic reflection's native deletion confirmation in account A, preserving its four existing reflections. B's synthetic-only vault erasure is verified. Approval has already been granted; do not repeat an uncertain deletion blindly.
+- Separate real-account sign-in and vault display passed; authenticated cross-ID API denial is proven by the guarded emulator suite, not by production token replay.
+- Public demo publication and corrected portal submission are complete. The Secret Manager declaration is supported by the verified runtime.
 - Prize eligibility, workshop attendance and organizer selection remain unconfirmed; submission receipts alone do not establish them.

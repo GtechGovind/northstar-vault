@@ -1,6 +1,6 @@
-# Social demo post — ready for approval
+# Social demo post — published 28 August 2026
 
-Approval-ready replacement text for the existing post: https://www.linkedin.com/feed/update/urn:li:activity:7498550271413809152/ . Preserve its existing media and URL. Save this public edit only after explicit approval. The existing post has not yet been changed to this text.
+The replacement text below was saved to the existing post after explicit owner approval: https://www.linkedin.com/feed/update/urn:li:activity:7498550271413809152/ . Its existing media and URL were preserved. The published page was checked for Gemini Developer API, the pinned Secret Manager credential, the blog-demo link and the required hashtag.
 
 ---
 
@@ -37,4 +37,4 @@ Code: https://github.com/GtechGovind/northstar-vault
 - The public blog link includes a step-by-step Northstar demo, not only a screenshot.
 - Existing screenshot/media is preserved; any historical Vertex wording in the image is superseded by the dated release text.
 - `#AccelerateAIwithCloudRun` appears exactly as written.
-- Copy the published-post URL into the already prepared Ideathon form.
+- The same published-post URL is saved in the corrected Ideathon submission.

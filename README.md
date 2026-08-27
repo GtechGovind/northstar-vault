@@ -2,7 +2,7 @@
 
 > Private clarity. Practical next steps.
 
-**Prize-readiness status — 27 August 2026:** the prototype is submitted, but eligibility is not yet fully verified. Production now uses the Gemini Developer API with a pinned Secret Manager credential. A genuine AI Studio-generated Privacy Receipt enhancement is integrated and tested; [generation provenance](docs/ai-studio/README.md) and [release verification / remaining requirements](docs/production-verification.md) distinguish completed work from pending checks. Final live deletion checks and the corrected submission/public demo update still require approval. Do not treat a Submitted badge as prize acceptance.
+**Prize-readiness status — 28 August 2026:** the corrected prototype is resubmitted and the refreshed public demo post is published. Production uses the Gemini Developer API with a pinned Secret Manager credential. A genuine AI Studio-generated Privacy Receipt enhancement is integrated and tested; [generation provenance](docs/ai-studio/README.md) and [release verification / remaining checks](docs/production-verification.md) distinguish completed work from pending validation. Live synthetic-only vault erasure passed; the final single-reflection cleanup check remains pending. Do not treat a Submitted badge as prize acceptance.
 
 Northstar Vault is a production-minded Gemini decision journal built for the Gen AI Academy APAC Cloud Run Ideathon. It turns an unstructured reflection into a transparent **Signal Map**: observed facts, possible assumptions, competing tensions, reasonable options, an honest counterpoint, and one testable 48-hour experiment.
 
@@ -161,4 +161,4 @@ Northstar Vault is reflection support, not medical, legal, or financial advice.
 - `docs/northstar-social-preview.png` — polished Signal Map and multi-turn demo frame
 - `docs/northstar-submission-screenshot.png` — production viewport evidence
 - `docs/demo-script.md` — 90-second recording storyboard
-- `docs/social-post.md` — approval-ready social post copy
+- `docs/social-post.md` — published social post copy

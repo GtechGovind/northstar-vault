@@ -23,7 +23,7 @@ No payment, top-up or billing change was made by this deployment. Existing servi
 3. Runtime inspection confirmed `GOOGLE_GENAI_USE_VERTEXAI=0` and `GEMINI_API_KEY.valueFrom.secretKeyRef` naming `gemini-api-key` with key `2`, not `latest`. No plaintext Gemini key is present in the revision's environment configuration.
 4. The no-traffic candidate passed readiness, health 200, private 401/no-store, exact-source asset comparisons and Firebase-only public config checks before promotion. The preceding receipt revision remains available for rollback.
 5. Real signed-in Gemini continuation/reload and remaining synthetic-entry deletion results are recorded in [production verification](production-verification.md). Do not substitute emulator checks for live deletion evidence.
-6. Public architecture text, LinkedIn post and submitted form must match this runtime. The historical Vertex social post and final resubmission require approval; deployment alone does not complete those external steps.
+6. Public architecture text, LinkedIn post and submitted form now match this runtime. After explicit approval on 28 August, the existing social post was updated and the corrected brief was submitted through attempt 3. The saved content persisted after reload and the portal displayed Submitted; see [submission record](../SUBMISSION.md).
 
 Cloud Run resolves secret-backed environment variables at instance start. This is supported secret retrieval; it does not require exposing the key or fetching it from the browser. See [Google's Secret Manager configuration guide](https://docs.cloud.google.com/run/docs/configuring/services/secrets).
 
