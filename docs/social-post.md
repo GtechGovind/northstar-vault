@@ -19,7 +19,7 @@ What makes it production-ready:
 
 Live prototype: https://northstar-vault-546899882968.asia-south1.run.app
 
-Code: https://github.com/Qurkos/northstar-vault
+Code: https://github.com/GtechGovind/northstar-vault
 
 #AccelerateAIwithCloudRun #Gemini #GoogleCloud #Firebase #CloudRun #BuildInPublic
 
