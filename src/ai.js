@@ -49,20 +49,25 @@ Return only valid JSON with this exact shape:
 `;
 
 const fallback = {
-  reply: 'I could not shape that reflection safely just now. Your entry is still private and saved. Please try again in a moment.',
+  reply:
+    'I could not shape that reflection safely just now. Your entry is still private and saved. Please try again in a moment.',
   title: 'Untitled reflection',
   summary: 'A reflection is waiting to be processed.',
   signals: {
-    facts: [], assumptions: [], tensions: [], options: [],
+    facts: [],
+    assumptions: [],
+    tensions: [],
+    options: [],
     counterpoint: 'There may be another interpretation worth testing.',
     nextExperiment: {
       action: 'Write down one thing you know for certain.',
       why: 'It separates evidence from interpretation.',
-      checkIn: 'Notice whether the decision feels more concrete.'
-    }
+      checkIn: 'Notice whether the decision feels more concrete.',
+    },
   },
   compass: { clarity: 1, agency: 1, energy: 1 },
-  tags: ['reflection'], safetyEscalation: false
+  tags: ['reflection'],
+  safetyEscalation: false,
 };
 
 function clamp(value) {
@@ -72,10 +77,14 @@ function clamp(value) {
 
 function strings(value, max) {
   return Array.isArray(value)
-    ? value.filter((item) => typeof item === 'string').map((item) => item.slice(0, 240)).slice(0, max)
+    ? value
+        .filter((item) => typeof item === 'string')
+        .map((item) => item.slice(0, 240))
+        .slice(0, max)
     : [];
 }
 
+/** Bound untrusted model fields before storage or rendering; never pass raw JSON through. */
 function normalize(parsed) {
   const signals = parsed?.signals ?? {};
   const experiment = signals?.nextExperiment ?? {};
@@ -92,16 +101,19 @@ function normalize(parsed) {
       nextExperiment: {
         action: String(experiment.action || fallback.signals.nextExperiment.action).slice(0, 300),
         why: String(experiment.why || fallback.signals.nextExperiment.why).slice(0, 300),
-        checkIn: String(experiment.checkIn || fallback.signals.nextExperiment.checkIn).slice(0, 300)
-      }
+        checkIn: String(experiment.checkIn || fallback.signals.nextExperiment.checkIn).slice(
+          0,
+          300,
+        ),
+      },
     },
     compass: {
       clarity: clamp(parsed?.compass?.clarity),
       agency: clamp(parsed?.compass?.agency),
-      energy: clamp(parsed?.compass?.energy)
+      energy: clamp(parsed?.compass?.energy),
     },
     tags: strings(parsed?.tags, 4).map((tag) => tag.toLowerCase()),
-    safetyEscalation: parsed?.safetyEscalation === true
+    safetyEscalation: parsed?.safetyEscalation === true,
   };
 }
 
@@ -116,7 +128,7 @@ function aiClientOptions(env = process.env) {
     return {
       vertexai: true,
       project,
-      location: env.GOOGLE_CLOUD_LOCATION || 'global'
+      location: env.GOOGLE_CLOUD_LOCATION || 'global',
     };
   }
 
@@ -132,9 +144,10 @@ function createAIClient() {
 
 export async function reflect({ message, history = [] }) {
   const ai = createAIClient();
-  const transcript = history.slice(-10).map((item) =>
-    `${item.role === 'assistant' ? 'NORTHSTAR' : 'USER'}: ${item.text}`
-  ).join('\n\n');
+  const transcript = history
+    .slice(-10)
+    .map((item) => `${item.role === 'assistant' ? 'NORTHSTAR' : 'USER'}: ${item.text}`)
+    .join('\n\n');
   const prompt = `${transcript ? `RECENT CONVERSATION\n${transcript}\n\n` : ''}CURRENT USER REFLECTION\n${message}`;
 
   const response = await ai.models.generateContent({
@@ -144,8 +157,8 @@ export async function reflect({ message, history = [] }) {
       systemInstruction: SYSTEM_INSTRUCTION,
       responseMimeType: 'application/json',
       temperature: 0.55,
-      maxOutputTokens: 2200
-    }
+      maxOutputTokens: 2200,
+    },
   });
 
   try {

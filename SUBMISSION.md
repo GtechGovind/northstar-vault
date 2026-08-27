@@ -28,12 +28,12 @@ Northstar Vault turns tangled reflections into a Signal Map: facts, possible ass
 
 ## Evaluation proof
 
-| Criterion | Proof to show judges |
-|---|---|
-| Authenticity | Signal Map, counterpoint, 48-hour experiment, editorial design, Privacy Center |
-| Usability | One-click Google SSO, starter prompts, clear loading/error states, history, mobile layout |
-| Stability | `/api/health`, bounded reads, structured-output normalization, rate limits, 27 unit/HTTP/client/receipt tests and 9 emulator security tests |
-| Security | Verified ID tokens, UID-derived paths, owner-only reads/server-only writes, pinned Secret Manager credential, CSP, export/erasure, threat model |
+| Criterion    | Proof to show judges                                                                                                                            |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authenticity | Signal Map, counterpoint, 48-hour experiment, editorial design, Privacy Center                                                                  |
+| Usability    | One-click Google SSO, starter prompts, clear loading/error states, history, mobile layout                                                       |
+| Stability    | `/api/health`, bounded reads, structured-output normalization, rate limits, 27 unit/HTTP/client/receipt tests and 9 emulator security tests     |
+| Security     | Verified ID tokens, UID-derived paths, owner-only reads/server-only writes, pinned Secret Manager credential, CSP, export/erasure, threat model |
 
 ## Validation record
 

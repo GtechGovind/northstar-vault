@@ -47,18 +47,28 @@ The browser never receives AI credentials and never chooses a Firestore user pat
 
 ## Local development
 
+For a cloud-free synthetic UI preview, run `npm ci` followed by `npm run test:ui`
+and open `http://127.0.0.1:3035`. This uses local Firebase emulators, not Gemini.
+See [CONTRIBUTING](CONTRIBUTING.md) for formatting, linting, tests, and the code map,
+and [the UI guide](docs/ui-design.md) for the adaptive design and accessibility contract.
+
 Application Default Credentials are used by Firebase Admin:
 
 ```bash
 gcloud auth application-default login
 cp .env.example .env
 npm ci
+npm run build
 set -a && source .env && set +a
 export GEMINI_API_KEY="$(gcloud secrets versions access YOUR_PINNED_VERSION --secret=gemini-api-key --project=YOUR_PROJECT_ID)"
 npm run dev
 ```
 
 Do not put a real `.env` file or service-account key in Git. For team development, use user ADC.
+
+Run `npm run dev:css` in a second terminal when changing Tailwind classes. Before a
+commit, run `npm run format`, `npm run check`, and `npm run test:security`. Generated
+CSS and Lucide assets are self-hosted; no Tailwind browser/CDN runtime is used.
 
 ## Firebase setup
 

@@ -1,6 +1,6 @@
 # From a prompt to a product: building AI that earns its place
 
-*Govind Yadav · Gen AI Academy APAC · 27 August 2026*
+_Govind Yadav · Gen AI Academy APAC · 27 August 2026_
 
 **Updated 28 August 2026:** Northstar's current release calls the Gemini Developer API using a pinned Secret Manager credential and includes the AI Studio-generated local Privacy Receipt. The walkthrough below reflects this release; [verification notes](production-verification.md) distinguish current checks from the earlier Vertex build.
 

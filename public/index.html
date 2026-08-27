@@ -1,168 +1,839 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Northstar Vault is a privacy-first Gemini decision journal that turns tangled thoughts into testable next steps.">
-  <meta name="theme-color" content="#101311">
-  <title>Northstar Vault — private clarity, practical next steps</title>
-  <link rel="stylesheet" href="/styles.css?v=20260827-receipt">
-</head>
-<body>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta
+      name="description"
+      content="Northstar Vault is a private Gemini decision journal. Make space for your thoughts, explore your options, and choose a practical next step."
+    />
+    <meta name="theme-color" content="#182820" />
+    <title>Northstar Vault — your space for clarity</title>
+    <link rel="stylesheet" href="/styles.css?v=20260828-tailwind" />
+  </head>
+  <body
+    class="min-h-full bg-canvas font-sans text-ink antialiased [color-scheme:light] selection:bg-moss [&_.hidden]:hidden! [&_a:focus-visible]:outline-2 [&_a:focus-visible]:outline-offset-4 [&_a:focus-visible]:outline-leaf [&_button]:min-w-12 [&_button]:cursor-pointer [&_button]:touch-manipulation [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-50 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-offset-4 [&_button:focus-visible]:outline-leaf"
+  >
+    <a
+      id="skip-link"
+      href="#main-content"
+      class="sr-only fixed top-3 left-3 z-50 rounded-xl bg-ink px-5 py-3 text-white focus:not-sr-only"
+      >Skip to content</a
+    >
+    <div
+      id="toast"
+      role="status"
+      aria-live="polite"
+      data-visible="false"
+      class="pointer-events-none invisible fixed inset-x-4 bottom-6 z-50 mx-auto w-fit max-w-lg translate-y-2 rounded-2xl bg-ink px-5 py-3 text-sm leading-6 text-white opacity-0 shadow-xl transition duration-200 data-[visible=true]:visible data-[visible=true]:translate-y-0 data-[visible=true]:opacity-100 motion-reduce:transition-none"
+    ></div>
 
-  <section id="landing" class="landing">
-    <nav class="landing-nav" aria-label="Primary navigation">
-      <a class="brand" href="#" aria-label="Northstar Vault home">
-        <span class="brand-mark" aria-hidden="true">N</span>
-        <span>Northstar Vault</span>
-      </a>
-      <button id="sign-in-top" class="button button-ghost">Sign in</button>
-    </nav>
-
-    <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <div class="eyebrow"><span></span> Private by architecture</div>
-          <h1>Turn tangled thoughts into <em>clear next steps.</em></h1>
-          <p class="hero-lead">A private decision journal that helps you separate facts from assumptions, explore honest options, and choose one small experiment.</p>
-          <div class="hero-actions">
-            <button id="sign-in-main" class="button button-primary">
-              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.6h3.2c1.9-1.8 3-4.4 3-7.5Z" fill="#4285F4"/><path d="M12 22c2.7 0 5-.9 6.6-2.3l-3.2-2.6c-.9.6-2 1-3.4 1a5.8 5.8 0 0 1-5.5-4H3.2v2.6A10 10 0 0 0 12 22Z" fill="#34A853"/><path d="M6.5 14a6 6 0 0 1 0-4V7.3H3.2a10 10 0 0 0 0 9.4L6.5 14Z" fill="#FBBC05"/><path d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.7 9.7 0 0 0 3.2 7.3L6.5 10A5.8 5.8 0 0 1 12 5.9Z" fill="#EA4335"/></svg>
+    <section id="landing" class="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+      <nav
+        class="flex min-h-24 items-center justify-between gap-4 border-b border-ink/10"
+        aria-label="Primary navigation"
+      >
+        <a
+          href="/"
+          class="flex min-w-0 items-center gap-3 font-semibold tracking-tight"
+          aria-label="Northstar Vault home"
+        >
+          <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-ink text-moss"
+            ><svg class="size-6" aria-hidden="true"><use href="/icons.svg#compass"></use></svg
+          ></span>
+          <span>Northstar <span class="font-normal text-muted">Vault</span></span>
+        </a>
+        <button
+          id="sign-in-top"
+          class="min-h-12 shrink-0 rounded-full border border-ink/15 px-5 text-sm font-medium transition hover:bg-ink/5 motion-reduce:transition-none"
+        >
+          Sign in <span aria-hidden="true">↗</span>
+        </button>
+      </nav>
+      <main id="main-content" tabindex="-1">
+        <section class="grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-28">
+          <div class="min-w-0">
+            <p
+              class="mb-6 flex items-center gap-2 text-xs font-semibold tracking-[0.14em] text-leaf uppercase"
+            >
+              <span class="size-2 rounded-full bg-leaf"></span>A little space. A clearer
+              perspective.
+            </p>
+            <h1
+              class="max-w-xl text-5xl leading-[1.08] font-medium tracking-[-0.055em] sm:text-6xl xl:text-7xl"
+            >
+              Your thoughts.<br /><span class="font-display font-normal text-leaf italic"
+                >A clearer direction.</span
+              >
+            </h1>
+            <p class="mt-6 max-w-md text-base leading-7 text-muted sm:text-lg sm:leading-8">
+              A private decision journal to untangle what’s on your mind. Find the facts, question
+              assumptions, and choose a next step that feels like yours.
+            </p>
+            <button
+              id="sign-in-main"
+              class="mt-8 inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-ink px-7 text-sm font-semibold text-white shadow-sm transition hover:bg-leaf motion-reduce:transition-none"
+            >
+              <svg class="size-5 shrink-0" aria-hidden="true" viewBox="0 0 24 24">
+                <path
+                  d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.6h3.2c1.9-1.8 3-4.4 3-7.5Z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 22c2.7 0 5-.9 6.6-2.3l-3.2-2.6c-.9.6-2 1-3.4 1a5.8 5.8 0 0 1-5.5-4H3.2v2.6A10 10 0 0 0 12 22Z"
+                  fill="#34A853"
+                />
+                <path d="M6.5 14a6 6 0 0 1 0-4V7.3H3.2a10 10 0 0 0 0 9.4L6.5 14Z" fill="#FBBC05" />
+                <path
+                  d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.7 9.7 0 0 0 3.2 7.3L6.5 10A5.8 5.8 0 0 1 12 5.9Z"
+                  fill="#EA4335"
+                />
+              </svg>
               Continue with Google
             </button>
-            <span class="microcopy">No password stored · Your entries stay isolated</span>
+            <p class="mt-4 flex items-center gap-2 text-xs leading-5 text-muted">
+              <svg class="size-4 shrink-0" aria-hidden="true">
+                <use href="/icons.svg#lock-keyhole"></use></svg
+              >No new password. Your entries stay in your vault.
+            </p>
           </div>
-          <div class="trust-row" aria-label="Security features">
-            <span>Firebase Auth</span><i></i><span>Firestore isolation</span><i></i><span>Server-side Gemini</span>
-          </div>
-        </div>
-
-        <div class="signal-preview" aria-label="Example Northstar Signal Map">
-          <div class="preview-top">
-            <span class="preview-dot"></span>
-            <span>Signal Map</span>
-            <span class="private-pill">Private</span>
-          </div>
-          <div class="preview-prompt">“I keep delaying the launch because it still doesn’t feel ready.”</div>
-          <div class="signal-grid">
-            <article><span class="signal-icon mint">01</span><h3>Facts</h3><p>Three people completed the core flow successfully.</p></article>
-            <article><span class="signal-icon amber">02</span><h3>Assumption</h3><p>One rough edge means the whole launch will fail.</p></article>
-            <article><span class="signal-icon blue">03</span><h3>Next experiment</h3><p>Invite five users to a 48-hour private beta.</p></article>
-          </div>
-          <div class="compass-preview">
-            <div><span>Clarity</span><b>4</b><small>/5</small></div>
-            <div><span>Agency</span><b>3</b><small>/5</small></div>
-            <div><span>Energy</span><b>3</b><small>/5</small></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="principles">
-        <article><span>01</span><h2>See the signal</h2><p>Gemini separates what happened from the story your mind built around it.</p></article>
-        <article><span>02</span><h2>Choose, don’t obey</h2><p>You get transparent options and counterpoints—not a black-box command.</p></article>
-        <article><span>03</span><h2>Own your data</h2><p>Export your vault or permanently erase it. Privacy is a control, not a slogan.</p></article>
-      </section>
-    </main>
-    <footer class="landing-footer"><span>Reflection support, not medical advice.</span><span>Built securely on Google Cloud</span></footer>
-  </section>
-
-  <section id="workspace" class="workspace hidden" aria-label="Northstar Vault workspace">
-    <aside class="sidebar">
-      <a class="brand workspace-brand" href="#">
-        <span class="brand-mark">N</span><span>Northstar Vault</span>
-      </a>
-      <button id="new-session" class="button new-button"><span>＋</span> New reflection</button>
-      <div class="sidebar-label">Your private vault</div>
-      <div id="session-list" class="session-list" aria-live="polite"></div>
-      <div class="sidebar-bottom">
-        <button id="privacy-button" class="sidebar-action"><span>◇</span> Privacy center</button>
-        <button id="sign-out" class="sidebar-action"><span>↗</span> Sign out</button>
-        <div class="profile-chip">
-          <img id="profile-photo" alt="" referrerpolicy="no-referrer">
-          <div><strong id="profile-name">Private user</strong><span id="profile-email"></span></div>
-        </div>
-      </div>
-    </aside>
-
-    <main class="journal">
-      <header class="journal-header">
-        <div><span class="lock-dot">●</span><span>Private session</span></div>
-        <button id="delete-session" class="icon-button hidden" aria-label="Delete this reflection" title="Delete reflection">⌫</button>
-      </header>
-      <div id="conversation" class="conversation">
-        <section id="empty-state" class="empty-state">
-          <span class="orbit-mark">✦</span>
-          <p class="eyebrow center"><span></span> A quiet space to think</p>
-          <h1>What’s taking up<br>space in your mind?</h1>
-          <p>Write it imperfectly. Northstar will help separate the signal from the noise.</p>
-          <div class="starter-grid">
-            <button data-starter="I’m circling a decision and want to see the facts, assumptions, and real options clearly."><span>Decision</span>Untangle a choice</button>
-            <button data-starter="Something happened today that I keep replaying. Help me understand what I know and what I’m assuming."><span>Reflection</span>Process a moment</button>
-            <button data-starter="I have an idea I care about, but it still feels vague. Help me shape one useful 48-hour experiment."><span>Idea</span>Shape an experiment</button>
+          <div
+            class="min-w-0 rounded-3xl border border-ink/10 bg-paper p-5 shadow-[0_24px_80px_-40px_#18282040] sm:p-8"
+          >
+            <div
+              class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 pb-5"
+            >
+              <span class="flex items-center gap-2 text-sm font-semibold"
+                ><svg class="size-5 text-leaf" aria-hidden="true">
+                  <use href="/icons.svg#sparkles"></use></svg
+                >A thought, untangled</span
+              >
+              <span class="rounded-full bg-canvas px-3 py-1.5 text-[11px] font-medium text-muted"
+                >Illustrative example</span
+              >
+            </div>
+            <p class="py-7 font-display text-2xl leading-relaxed tracking-tight">
+              “I keep delaying the launch because it still doesn’t feel ready.”
+            </p>
+            <div class="grid gap-5 border-t border-ink/10 pt-6 sm:grid-cols-2">
+              <div>
+                <p class="mb-2 text-[11px] font-bold tracking-widest text-leaf uppercase">
+                  What you know
+                </p>
+                <p class="text-sm leading-6 text-muted">
+                  Three people completed the core flow successfully.
+                </p>
+              </div>
+              <div>
+                <p class="mb-2 text-[11px] font-bold tracking-widest text-amber-800 uppercase">
+                  What you’re assuming
+                </p>
+                <p class="text-sm leading-6 text-muted">
+                  One rough edge means the whole launch will fail.
+                </p>
+              </div>
+            </div>
+            <div class="mt-6 rounded-2xl bg-moss/45 p-5">
+              <p class="flex items-center gap-2 text-xs font-semibold text-leaf">
+                <svg class="size-4" aria-hidden="true"><use href="/icons.svg#lightbulb"></use></svg
+                >One small experiment
+              </p>
+              <p class="mt-2 text-sm leading-6">
+                Invite five users to a 48-hour private beta. See what happens before deciding what’s
+                next.
+              </p>
+            </div>
+            <p class="mt-5 text-xs leading-5 text-muted">
+              A perspective to consider. The decision is always yours.
+            </p>
           </div>
         </section>
-        <div id="messages" class="messages"></div>
-      </div>
-      <form id="composer" class="composer">
-        <label class="sr-only" for="message-input">Your private reflection</label>
-        <textarea id="message-input" maxlength="4000" rows="1" placeholder="Write what’s on your mind…"></textarea>
-        <div class="composer-bottom">
-          <span><kbd>⌘</kbd><kbd>↵</kbd> to reflect</span>
-          <button id="send-button" class="send-button" type="submit" aria-label="Send reflection">↑</button>
+        <section
+          class="grid gap-8 border-t border-ink/10 py-10 sm:grid-cols-3 sm:gap-10"
+          aria-label="How Northstar works"
+        >
+          <article>
+            <span class="text-xs font-medium text-leaf">01 / MAKE SPACE</span>
+            <h2 class="mt-3 text-lg font-semibold tracking-tight">Start wherever you are.</h2>
+            <p class="mt-2 text-sm leading-6 text-muted">
+              An unfinished thought is enough. There’s no perfect way to begin.
+            </p>
+          </article>
+          <article>
+            <span class="text-xs font-medium text-leaf">02 / FIND PERSPECTIVE</span>
+            <h2 class="mt-3 text-lg font-semibold tracking-tight">See more than one path.</h2>
+            <p class="mt-2 text-sm leading-6 text-muted">
+              Gemini offers facts, options, and counterpoints—not instructions to obey.
+            </p>
+          </article>
+          <article>
+            <span class="text-xs font-medium text-leaf">03 / KEEP AGENCY</span>
+            <h2 class="mt-3 text-lg font-semibold tracking-tight">Your vault. Your control.</h2>
+            <p class="mt-2 text-sm leading-6 text-muted">
+              Export your reflections with a local integrity receipt, or erase them when you choose.
+            </p>
+          </article>
+        </section>
+      </main>
+      <footer
+        class="flex flex-col justify-between gap-3 border-t border-ink/10 py-6 text-xs leading-5 text-muted sm:flex-row"
+      >
+        <span>Northstar can make mistakes. Reflection support, not professional advice.</span
+        ><span class="shrink-0">Built on Google Cloud · Powered by Gemini</span>
+      </footer>
+    </section>
+
+    <section
+      id="workspace"
+      class="hidden h-dvh min-h-0 min-w-0 overflow-hidden"
+      aria-label="Northstar Vault workspace"
+    >
+      <div class="flex h-full min-h-0 min-w-0">
+        <div
+          id="history-slot"
+          class="h-full w-64 shrink-0 border-r border-ink/10 max-lg:hidden lg:block"
+        >
+          <aside
+            id="sidebar"
+            class="flex h-full min-h-0 w-full flex-col overflow-y-auto bg-canvas [padding-bottom:env(safe-area-inset-bottom)]"
+            aria-label="Reflection history"
+          >
+            <div class="flex min-h-20 shrink-0 items-center justify-between gap-1 px-5">
+              <a
+                href="/"
+                class="flex items-center gap-2.5 text-sm font-semibold tracking-tight"
+                aria-label="Northstar Vault home"
+                ><span class="grid size-9 shrink-0 place-items-center rounded-xl bg-ink text-moss"
+                  ><svg class="size-5" aria-hidden="true">
+                    <use href="/icons.svg#compass"></use></svg></span
+                ><span>Northstar <span class="font-normal text-muted">Vault</span></span></a
+              >
+              <button
+                id="close-history"
+                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 lg:hidden"
+                aria-label="Close history"
+              >
+                <svg class="size-5" aria-hidden="true"><use href="/icons.svg#x"></use></svg>
+              </button>
+            </div>
+            <div class="shrink-0 px-4">
+              <button
+                id="new-session"
+                class="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-4 text-sm font-medium text-white transition hover:bg-leaf motion-reduce:transition-none"
+              >
+                <svg class="size-4" aria-hidden="true"><use href="/icons.svg#plus"></use></svg>New
+                reflection
+              </button>
+              <div class="relative mt-5">
+                <svg
+                  class="pointer-events-none absolute top-4 left-3 size-4 text-muted"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#search"></use></svg
+                ><label class="sr-only" for="session-search">Search reflections</label
+                ><input
+                  id="session-search"
+                  type="search"
+                  autocomplete="off"
+                  placeholder="Search reflections"
+                  class="h-12 w-full min-w-0 rounded-xl border border-transparent bg-ink/4 pr-3 pl-9 text-base outline-none placeholder:text-muted focus:border-leaf focus:bg-paper focus:ring-2 focus:ring-leaf/15 sm:text-sm"
+                />
+              </div>
+              <div
+                class="flex items-center justify-between gap-3 pt-6 pb-2 text-[11px] font-semibold tracking-widest text-muted uppercase"
+              >
+                <h2 id="history-title">Your reflections</h2>
+                <span id="session-count">0</span>
+              </div>
+            </div>
+            <div
+              id="history-error"
+              class="mx-4 mt-2 hidden rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-950"
+            >
+              <p>History couldn’t be loaded.</p>
+              <button
+                id="retry-history"
+                class="mt-1 min-h-12 font-semibold underline underline-offset-4"
+              >
+                Try again
+              </button>
+            </div>
+            <div
+              id="session-list"
+              role="group"
+              class="min-h-24 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 pb-4"
+              aria-labelledby="history-title"
+              aria-live="polite"
+            ></div>
+            <div class="shrink-0 border-t border-ink/10 px-3 pt-3 pb-4">
+              <button
+                id="privacy-button"
+                class="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm text-muted hover:bg-ink/5 hover:text-ink"
+              >
+                <svg class="size-5 shrink-0" aria-hidden="true">
+                  <use href="/icons.svg#shield-check"></use></svg
+                >Privacy center
+              </button>
+              <button
+                id="sign-out"
+                class="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm text-muted hover:bg-ink/5 hover:text-ink"
+              >
+                <svg class="size-5 shrink-0" aria-hidden="true">
+                  <use href="/icons.svg#log-out"></use></svg
+                >Sign out
+              </button>
+              <div
+                class="mt-3 flex min-w-0 items-center gap-3 rounded-2xl border border-ink/10 bg-paper/70 px-3 py-3"
+              >
+                <div
+                  class="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-moss"
+                >
+                  <span id="profile-initials" class="text-xs font-semibold" aria-hidden="true"
+                    >N</span
+                  ><img
+                    id="profile-photo"
+                    class="absolute inset-0 hidden size-full object-cover"
+                    alt=""
+                    referrerpolicy="no-referrer"
+                  />
+                </div>
+                <div class="min-w-0">
+                  <p id="profile-name" class="truncate text-xs font-semibold">Private user</p>
+                  <p id="profile-email" class="mt-0.5 truncate text-[11px] text-muted"></p>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
-      </form>
-      <p class="disclaimer">Northstar can make mistakes. It offers reflection prompts—not professional advice.</p>
-    </main>
 
-    <aside id="signal-panel" class="signal-panel">
-      <div class="panel-heading"><div><span>Live analysis</span><h2>Signal Map</h2></div><span class="private-pill">Private</span></div>
-      <div id="signal-empty" class="signal-empty">
-        <div class="radar"><i></i><i></i><i></i><span>✦</span></div>
-        <h3>Your signal map will appear here</h3>
-        <p>Facts, assumptions, options, and a small next experiment—generated only from what you share.</p>
-      </div>
-      <div id="signal-content" class="signal-content hidden"></div>
-    </aside>
-  </section>
+        <main
+          id="journal"
+          tabindex="-1"
+          class="flex h-full min-h-0 min-w-0 flex-1 flex-col bg-paper"
+        >
+          <header
+            class="flex min-h-20 shrink-0 items-center gap-2 border-b border-ink/10 px-3 sm:px-6"
+          >
+            <button
+              id="open-history"
+              aria-label="Open reflection history"
+              aria-controls="history-dialog"
+              aria-expanded="false"
+              class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 lg:hidden"
+            >
+              <svg class="size-5" aria-hidden="true"><use href="/icons.svg#menu"></use></svg>
+            </button>
+            <div class="min-w-0 flex-1 py-3">
+              <h1
+                id="session-title"
+                class="truncate text-sm font-semibold tracking-tight sm:text-base"
+              >
+                New reflection
+              </h1>
+              <p class="mt-1 flex items-center gap-1.5 text-[11px] text-muted">
+                <svg class="size-3 shrink-0" aria-hidden="true">
+                  <use href="/icons.svg#lock-keyhole"></use></svg
+                ><span id="session-status">Only in your private vault</span>
+              </p>
+            </div>
+            <button
+              id="delete-session"
+              aria-label="Delete this reflection"
+              title="Delete reflection"
+              class="grid hidden size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-red-50 hover:text-red-700"
+            >
+              <svg class="size-5" aria-hidden="true"><use href="/icons.svg#trash-2"></use></svg>
+            </button>
+            <button
+              id="open-signal"
+              aria-label="Open Signal Map"
+              aria-controls="signal-dialog"
+              aria-expanded="false"
+              class="relative flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full border border-ink/10 px-3 text-xs font-medium text-leaf hover:bg-leaf/5 sm:px-4 xl:hidden"
+            >
+              <svg class="size-5" aria-hidden="true"><use href="/icons.svg#panel-right"></use></svg
+              ><span class="max-sm:hidden sm:inline">Signal Map</span
+              ><span
+                id="signal-ready-dot"
+                class="absolute top-2 right-2 hidden size-1.5 rounded-full bg-leaf"
+              ></span>
+            </button>
+          </header>
+          <div
+            id="offline-banner"
+            role="status"
+            class="flex hidden shrink-0 items-center gap-2 border-b border-amber-200 bg-amber-50 px-5 py-3 text-xs leading-5 text-amber-950"
+          >
+            <svg class="size-4 shrink-0" aria-hidden="true">
+              <use href="/icons.svg#wifi-off"></use></svg
+            >You’re offline. Your draft stays here while this page is open.
+          </div>
+          <div class="relative min-h-0 flex-1">
+            <div
+              id="conversation"
+              role="region"
+              tabindex="0"
+              aria-label="Reflection conversation"
+              class="h-full min-h-0 overflow-y-auto overscroll-contain px-4 outline-offset-[-4px] sm:px-8"
+            >
+              <div
+                id="history-loading"
+                role="status"
+                class="mx-auto flex hidden max-w-2xl items-center justify-center gap-3 py-16 text-sm text-muted"
+              >
+                <svg class="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true">
+                  <use href="/icons.svg#loader-circle"></use></svg
+                >Opening your reflection…
+              </div>
+              <section
+                id="empty-state"
+                class="mx-auto flex min-h-full max-w-2xl flex-col justify-center py-8 sm:py-12"
+              >
+                <span
+                  class="mb-6 grid size-12 place-items-center rounded-2xl border border-leaf/15 bg-leaf/5 text-leaf"
+                  ><svg class="size-6" aria-hidden="true">
+                    <use href="/icons.svg#sparkles"></use></svg
+                ></span>
+                <p class="text-[11px] font-semibold tracking-[0.15em] text-leaf uppercase">
+                  Your space for clarity
+                </p>
+                <h2
+                  class="mt-3 text-3xl leading-tight font-medium tracking-[-0.04em] sm:text-4xl 2xl:text-5xl"
+                >
+                  What’s on<br /><span class="font-display font-normal text-leaf italic"
+                    >your mind today?</span
+                  >
+                </h2>
+                <p class="mt-4 max-w-md text-sm leading-6 text-muted sm:text-base sm:leading-7">
+                  Start with a decision, a moment, or an idea. Write it imperfectly. We’ll find the
+                  next step together.
+                </p>
+                <div class="mt-7 grid gap-2 sm:grid-cols-3">
+                  <button
+                    data-starter="I’m circling a decision and want to see the facts, assumptions, and real options clearly."
+                    class="group flex min-w-0 items-center gap-3 rounded-2xl border border-ink/10 p-4 text-left transition hover:border-leaf/40 hover:bg-leaf/5 motion-reduce:transition-none sm:block"
+                  >
+                    <svg class="size-5 shrink-0 text-leaf" aria-hidden="true">
+                      <use href="/icons.svg#compass"></use></svg
+                    ><span class="block min-w-0 sm:mt-3"
+                      ><span class="block text-xs font-semibold">Untangle a choice</span
+                      ><span class="mt-1 block text-[11px] leading-5 text-muted"
+                        >See your options clearly</span
+                      ></span
+                    >
+                  </button>
+                  <button
+                    data-starter="Something happened today that I keep replaying. Help me understand what I know and what I’m assuming."
+                    class="group flex min-w-0 items-center gap-3 rounded-2xl border border-ink/10 p-4 text-left transition hover:border-leaf/40 hover:bg-leaf/5 motion-reduce:transition-none sm:block"
+                  >
+                    <svg class="size-5 shrink-0 text-leaf" aria-hidden="true">
+                      <use href="/icons.svg#message-circle"></use></svg
+                    ><span class="block min-w-0 sm:mt-3"
+                      ><span class="block text-xs font-semibold">Process a moment</span
+                      ><span class="mt-1 block text-[11px] leading-5 text-muted"
+                        >Make room for perspective</span
+                      ></span
+                    >
+                  </button>
+                  <button
+                    data-starter="I have an idea I care about, but it still feels vague. Help me shape one useful 48-hour experiment."
+                    class="group flex min-w-0 items-center gap-3 rounded-2xl border border-ink/10 p-4 text-left transition hover:border-leaf/40 hover:bg-leaf/5 motion-reduce:transition-none sm:block"
+                  >
+                    <svg class="size-5 shrink-0 text-leaf" aria-hidden="true">
+                      <use href="/icons.svg#lightbulb"></use></svg
+                    ><span class="block min-w-0 sm:mt-3"
+                      ><span class="block text-xs font-semibold">Shape an idea</span
+                      ><span class="mt-1 block text-[11px] leading-5 text-muted"
+                        >Try one small experiment</span
+                      ></span
+                    >
+                  </button>
+                </div>
+              </section>
+              <div
+                id="messages"
+                role="log"
+                aria-label="Messages"
+                aria-live="polite"
+                aria-relevant="additions"
+                class="mx-auto max-w-2xl space-y-7 py-7 empty:hidden sm:space-y-9 sm:py-10"
+              ></div>
+            </div>
+            <button
+              id="jump-latest"
+              class="absolute right-5 bottom-3 grid hidden size-12 place-items-center rounded-full border border-ink/15 bg-paper text-ink shadow-md hover:bg-canvas sm:right-8"
+              aria-label="Jump to latest message"
+            >
+              <svg class="size-5" aria-hidden="true"><use href="/icons.svg#arrow-down"></use></svg>
+            </button>
+          </div>
+          <div
+            class="max-h-[60dvh] shrink-0 overflow-y-auto overscroll-contain bg-paper px-3 pt-2 [padding-bottom:max(0.65rem,env(safe-area-inset-bottom))] sm:px-8"
+          >
+            <form
+              id="composer"
+              class="mx-auto max-w-2xl rounded-3xl border border-ink/20 bg-white p-3 shadow-[0_3px_18px_-10px_#18282030] transition focus-within:border-leaf/60 focus-within:ring-2 focus-within:ring-leaf/10 motion-reduce:transition-none"
+            >
+              <label class="sr-only" for="message-input">Your private reflection</label>
+              <textarea
+                id="message-input"
+                maxlength="4000"
+                rows="2"
+                aria-describedby="composer-hint composer-feedback"
+                placeholder="Write what’s on your mind…"
+                class="block max-h-[min(10rem,25dvh)] min-h-14 w-full resize-none bg-transparent px-2 py-1 text-base leading-7 outline-none placeholder:text-muted"
+              ></textarea>
+              <div class="flex min-h-12 items-end justify-between gap-2">
+                <div class="min-w-0 px-2 pb-2">
+                  <span
+                    id="composer-hint"
+                    class="flex items-center gap-1.5 text-[11px] leading-5 text-muted"
+                    ><svg class="size-3.5 shrink-0" aria-hidden="true">
+                      <use href="/icons.svg#lock-keyhole"></use></svg
+                    >Private reflection<span class="max-sm:hidden sm:inline">
+                      · Ctrl / ⌘ + Enter to send</span
+                    ></span
+                  ><span id="character-count" class="hidden text-[11px] text-muted"></span>
+                </div>
+                <button
+                  id="send-button"
+                  type="submit"
+                  disabled
+                  aria-label="Send reflection"
+                  class="grid size-12 shrink-0 place-items-center rounded-full bg-ink text-moss transition hover:bg-leaf disabled:bg-ink/10 disabled:text-muted motion-reduce:transition-none"
+                >
+                  <svg id="send-icon" class="size-5" aria-hidden="true">
+                    <use href="/icons.svg#arrow-up"></use></svg
+                  ><svg
+                    id="send-spinner"
+                    class="hidden size-5 animate-spin motion-reduce:animate-none"
+                    aria-hidden="true"
+                  >
+                    <use href="/icons.svg#loader-circle"></use>
+                  </svg>
+                </button>
+              </div>
+            </form>
+            <p
+              id="composer-feedback"
+              role="status"
+              class="mx-auto mt-2 hidden max-w-2xl px-2 text-xs leading-5 text-red-800"
+            ></p>
+            <p
+              class="mx-auto mt-2 max-w-2xl px-2 text-center text-[10px] leading-4 text-muted sm:text-[11px]"
+            >
+              AI can make mistakes. Reflection support, not professional advice.
+            </p>
+          </div>
+        </main>
 
-  <dialog id="privacy-dialog" class="privacy-dialog">
-    <button class="dialog-close" aria-label="Close">×</button>
-    <span class="orbit-mark small">◇</span>
-    <p class="eyebrow center"><span></span> Privacy center</p>
-    <h2>Your vault, your control.</h2>
-    <p>Google Sign-In proves who you are. Every private API binds database paths to your verified Firebase user ID. Gemini runs only on the server; AI credentials never reach your browser.</p>
-    <div class="security-list">
-      <div><span>✓</span><p><strong>Identity verified server-side</strong>Firebase ID tokens are validated on every private API request.</p></div>
-      <div><span>✓</span><p><strong>Strict user isolation</strong>Your reflections live under your own Firestore path. Direct browser writes are denied; changes use the authenticated API.</p></div>
-      <div><span>✓</span><p><strong>Server-side AI access</strong>Cloud Run makes the Gemini request. AI credentials stay on the server and are excluded from public configuration, browser code, and application logs.</p></div>
-      <div><span>✓</span><p><strong>No model training claim</strong>The app does not reuse your entries to train its own models.</p></div>
-      <div><span>✓</span><p><strong>Deletion with safeguards</strong>Deletion requires confirmation. Late AI replies cannot restore erased entries. Vault erasure retains only an opaque anti-replay marker, not journal content; it does not delete your Google/Firebase account or cloud-provider backups.</p></div>
-    </div>
-    <div class="data-actions">
-      <button id="export-data" class="button button-secondary">Export + privacy receipt</button>
-      <button id="cancel-export" class="button button-ghost hidden">Cancel export</button>
-      <button id="delete-data" class="button button-danger">Erase my vault</button>
-    </div>
-    <p id="receipt-status" class="receipt-status" role="status" aria-live="polite"></p>
-    <section id="privacy-receipt" class="privacy-receipt hidden" aria-label="Export integrity receipt">
-      <h3>Export integrity receipt</h3>
-      <p>Computed on this device with SHA-256. No journal text or IDs are included in the receipt.</p>
-      <dl class="receipt-counts">
-        <div><dt>Reflections</dt><dd id="receipt-reflections"></dd></div>
-        <div><dt>Messages</dt><dd id="receipt-messages"></dd></div>
-        <div><dt>UTF-8 bytes</dt><dd id="receipt-bytes"></dd></div>
-      </dl>
-      <p class="receipt-label">Exported at (UTC)</p><time id="receipt-exported-at"></time>
-      <p class="receipt-label">Exact-file SHA-256</p><code id="receipt-sha256"></code>
-      <p class="receipt-disclaimer">An integrity fingerprint—not proof of deletion, encryption or server authenticity. Closing this panel or signing out clears the receipt. Files you download remain on your device. Receipt calculation supports exports up to 10 MiB; larger exports still download.</p>
-      <div class="data-actions">
-        <button id="download-receipt" class="button button-secondary">Download receipt</button>
-        <button id="clear-receipt" class="button button-ghost">Clear receipt</button>
+        <div
+          id="signal-slot"
+          class="h-full w-80 shrink-0 border-l border-ink/10 max-xl:hidden xl:block 2xl:w-88"
+        >
+          <aside
+            id="signal-panel"
+            class="flex h-full min-h-0 w-full flex-col bg-canvas [padding-bottom:env(safe-area-inset-bottom)]"
+            aria-labelledby="signal-title"
+          >
+            <header
+              class="flex min-h-20 shrink-0 items-center justify-between gap-3 border-b border-ink/10 px-5"
+            >
+              <div>
+                <p class="text-[10px] font-semibold tracking-widest text-muted uppercase">
+                  A little perspective
+                </p>
+                <h2
+                  id="signal-title"
+                  class="mt-1 flex items-center gap-2 text-base font-semibold tracking-tight"
+                >
+                  <svg class="size-4 text-leaf" aria-hidden="true">
+                    <use href="/icons.svg#sparkles"></use></svg
+                  >Signal Map
+                </h2>
+              </div>
+              <button
+                id="close-signal"
+                class="grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5 xl:hidden"
+                aria-label="Close Signal Map"
+              >
+                <svg class="size-5" aria-hidden="true"><use href="/icons.svg#x"></use></svg></button
+              ><svg class="size-4 text-muted max-xl:hidden xl:block" aria-label="Private">
+                <use href="/icons.svg#lock-keyhole"></use>
+              </svg>
+            </header>
+            <div
+              class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-leaf"
+              tabindex="0"
+              role="region"
+              aria-label="Signal Map insights"
+            >
+              <div
+                id="signal-empty"
+                class="flex min-h-full flex-col items-center justify-center py-10 text-center"
+              >
+                <span
+                  class="grid size-20 place-items-center rounded-full border border-leaf/15 bg-leaf/5 text-leaf"
+                  ><svg class="size-8" aria-hidden="true"><use href="/icons.svg#compass"></use></svg
+                ></span>
+                <h3 class="mt-6 text-base font-semibold tracking-tight">
+                  Clarity starts with a thought.
+                </h3>
+                <p class="mt-3 max-w-60 text-sm leading-6 text-muted">
+                  As you reflect, your facts, assumptions, and next experiment will find a place
+                  here.
+                </p>
+                <p class="mt-7 flex items-center gap-1.5 text-[11px] text-muted">
+                  <svg class="size-3.5" aria-hidden="true">
+                    <use href="/icons.svg#lock-keyhole"></use></svg
+                  >Generated only from what you share
+                </p>
+              </div>
+              <div id="signal-content" class="hidden space-y-4 wrap-anywhere"></div>
+            </div>
+          </aside>
+        </div>
       </div>
     </section>
-  </dialog>
 
-  <script type="module" src="/app.js?v=20260827-receipt"></script>
-</body>
+    <dialog
+      id="history-dialog"
+      aria-label="Reflection history"
+      class="fixed inset-y-0 right-auto left-0 m-0 h-dvh max-h-none w-[min(88vw,21rem)] max-w-none border-0 bg-canvas p-0 text-ink shadow-2xl backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+    ></dialog>
+    <dialog
+      id="signal-dialog"
+      aria-label="Signal Map"
+      class="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-full max-w-md border-0 bg-canvas p-0 text-ink shadow-2xl backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+    ></dialog>
+
+    <dialog
+      id="privacy-dialog"
+      aria-labelledby="privacy-title"
+      aria-describedby="privacy-description"
+      class="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-xl overflow-y-auto overscroll-contain rounded-3xl border border-ink/10 bg-paper p-0 text-ink shadow-2xl backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
+    >
+      <header
+        class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-ink/10 bg-paper px-5 py-3 sm:px-7"
+      >
+        <span class="flex items-center gap-2 text-sm font-semibold"
+          ><svg class="size-5 text-leaf" aria-hidden="true">
+            <use href="/icons.svg#shield-check"></use></svg
+          >Privacy center</span
+        ><button
+          class="dialog-close grid size-12 shrink-0 place-items-center rounded-full text-muted hover:bg-ink/5"
+          aria-label="Close privacy center"
+          autofocus
+        >
+          <svg class="size-5" aria-hidden="true"><use href="/icons.svg#x"></use></svg>
+        </button>
+      </header>
+      <div class="p-5 sm:p-7">
+        <h2 id="privacy-title" class="text-2xl font-semibold tracking-tight">
+          Your vault, your control.
+        </h2>
+        <p id="privacy-description" class="mt-3 text-sm leading-6 text-muted">
+          Google Sign-In verifies your identity. Every private request is checked on the server, and
+          your reflections stay under your own account.
+        </p>
+        <div class="my-6 space-y-4 text-sm leading-6">
+          <div class="flex gap-3">
+            <svg class="mt-1 size-4 shrink-0 text-leaf" aria-hidden="true">
+              <use href="/icons.svg#check"></use>
+            </svg>
+            <p>
+              <strong class="font-semibold">Account-level isolation.</strong><br /><span
+                class="text-muted"
+                >Firebase tokens are verified for each private API request. Direct browser database
+                writes are denied.</span
+              >
+            </p>
+          </div>
+          <div class="flex gap-3">
+            <svg class="mt-1 size-4 shrink-0 text-leaf" aria-hidden="true">
+              <use href="/icons.svg#check"></use>
+            </svg>
+            <p>
+              <strong class="font-semibold">Server-side AI access.</strong><br /><span
+                class="text-muted"
+                >Gemini credentials never reach your browser. Northstar does not reuse entries to
+                train its own models.</span
+              >
+            </p>
+          </div>
+          <div class="flex gap-3">
+            <svg class="mt-1 size-4 shrink-0 text-leaf" aria-hidden="true">
+              <use href="/icons.svg#check"></use>
+            </svg>
+            <p>
+              <strong class="font-semibold">Deletion with safeguards.</strong><br /><span
+                class="text-muted"
+                >Late AI replies cannot restore erased entries. Erasure keeps only an opaque
+                anti-replay marker, not journal content. It does not remove your Google/Firebase
+                account or cloud-provider backups.</span
+              >
+            </p>
+          </div>
+        </div>
+        <section
+          class="rounded-2xl border border-ink/10 bg-canvas p-4 sm:p-5"
+          aria-labelledby="export-title"
+        >
+          <h3 id="export-title" class="text-sm font-semibold">Take your reflections with you</h3>
+          <p class="mt-2 text-xs leading-5 text-muted">
+            Download your vault as JSON, with an optional integrity receipt calculated on this
+            device.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button
+              id="export-data"
+              class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-ink px-5 text-xs font-semibold text-white hover:bg-leaf"
+            >
+              <svg class="size-4" aria-hidden="true"><use href="/icons.svg#download"></use></svg
+              >Export + privacy receipt</button
+            ><button
+              id="cancel-export"
+              class="hidden min-h-12 rounded-full px-4 text-xs font-medium hover:bg-ink/5"
+            >
+              Cancel export
+            </button>
+          </div>
+          <p
+            id="receipt-status"
+            class="mt-3 text-xs leading-5 text-muted empty:hidden"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </section>
+        <section
+          id="privacy-receipt"
+          class="mt-4 hidden rounded-2xl border border-leaf/20 bg-leaf/5 p-4 sm:p-5"
+          aria-label="Export integrity receipt"
+        >
+          <h3 class="text-sm font-semibold text-leaf">Export integrity receipt</h3>
+          <p class="mt-2 text-xs leading-5 text-muted">
+            Computed on this device with SHA-256. No journal text or IDs are included.
+          </p>
+          <dl class="my-4 grid grid-cols-3 gap-2">
+            <div class="min-w-0">
+              <dt class="text-[10px] text-muted">Reflections</dt>
+              <dd
+                id="receipt-reflections"
+                class="mt-1 text-xl font-semibold wrap-anywhere tabular-nums"
+              ></dd>
+            </div>
+            <div class="min-w-0">
+              <dt class="text-[10px] text-muted">Messages</dt>
+              <dd
+                id="receipt-messages"
+                class="mt-1 text-xl font-semibold wrap-anywhere tabular-nums"
+              ></dd>
+            </div>
+            <div class="min-w-0">
+              <dt class="text-[10px] text-muted">UTF-8 bytes</dt>
+              <dd
+                id="receipt-bytes"
+                class="mt-1 text-xl font-semibold wrap-anywhere tabular-nums"
+              ></dd>
+            </div>
+          </dl>
+          <p class="text-[10px] font-semibold tracking-wider text-muted uppercase">
+            Exported at (UTC)
+          </p>
+          <time id="receipt-exported-at" class="mt-1 block text-xs wrap-anywhere"></time>
+          <p class="mt-4 text-[10px] font-semibold tracking-wider text-muted uppercase">
+            Exact-file SHA-256
+          </p>
+          <code
+            id="receipt-sha256"
+            class="mt-1 block rounded-lg bg-paper p-3 text-[11px] leading-5 wrap-anywhere select-all"
+          ></code>
+          <p class="mt-3 text-[11px] leading-5 text-muted">
+            An integrity fingerprint—not proof of deletion, encryption, or server authenticity.
+            Closing this panel or signing out clears the receipt. Downloaded files remain on your
+            device. Receipts support exports up to 10 MiB; larger exports still download.
+          </p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button
+              id="download-receipt"
+              class="min-h-12 rounded-full border border-leaf/30 px-4 text-xs font-semibold text-leaf hover:bg-leaf/10"
+            >
+              Download receipt</button
+            ><button
+              id="clear-receipt"
+              class="min-h-12 rounded-full px-4 text-xs font-medium text-muted hover:bg-ink/5"
+            >
+              Clear receipt
+            </button>
+          </div>
+        </section>
+        <div class="mt-6 border-t border-ink/10 pt-5">
+          <h3 class="text-sm font-semibold">Ready for a fresh start?</h3>
+          <p class="mt-2 text-xs leading-5 text-muted">
+            Permanently remove every reflection. You’ll be asked to confirm before anything is
+            erased.
+          </p>
+          <button
+            id="delete-data"
+            class="mt-3 inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-xs font-semibold text-red-800 hover:bg-red-50"
+          >
+            <svg class="size-4" aria-hidden="true"><use href="/icons.svg#trash-2"></use></svg>Erase
+            my vault
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-description"
+      class="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto overscroll-contain rounded-3xl border border-ink/10 bg-paper p-6 text-ink shadow-2xl backdrop:bg-ink/40 backdrop:backdrop-blur-[2px] sm:p-8"
+    >
+      <span class="mb-5 grid size-12 place-items-center rounded-2xl bg-red-50 text-red-800"
+        ><svg class="size-5" aria-hidden="true"><use href="/icons.svg#trash-2"></use></svg
+      ></span>
+      <h2 id="confirm-title" class="text-xl font-semibold tracking-tight">
+        Delete this reflection?
+      </h2>
+      <p id="confirm-description" class="mt-3 text-sm leading-6 text-muted"></p>
+      <p
+        id="confirm-target"
+        class="mt-4 rounded-xl bg-canvas p-3 text-sm font-medium wrap-anywhere"
+      ></p>
+      <form id="confirm-form">
+        <div id="confirm-phrase-group" class="mt-5 hidden">
+          <label for="confirm-phrase" class="text-xs leading-5 text-muted"
+            >Type <strong class="font-semibold text-ink">ERASE MY VAULT</strong> to confirm</label
+          ><input
+            id="confirm-phrase"
+            autocomplete="off"
+            spellcheck="false"
+            class="mt-2 h-12 w-full rounded-xl border border-ink/25 bg-white px-3 text-base outline-none focus:border-leaf focus:ring-2 focus:ring-leaf/15"
+          />
+        </div>
+        <p id="confirm-error" role="alert" class="mt-4 hidden text-xs leading-5 text-red-800"></p>
+        <div class="mt-6 flex flex-wrap justify-end gap-2">
+          <button
+            id="confirm-cancel"
+            type="button"
+            autofocus
+            class="min-h-12 rounded-full border border-ink/15 px-5 text-sm font-medium hover:bg-ink/5"
+          >
+            Keep it</button
+          ><button
+            id="confirm-delete"
+            type="submit"
+            class="min-h-12 rounded-full bg-red-800 px-5 text-sm font-semibold text-white hover:bg-red-900"
+          >
+            Delete reflection
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="/app.js?v=20260828-tailwind"></script>
+  </body>
 </html>

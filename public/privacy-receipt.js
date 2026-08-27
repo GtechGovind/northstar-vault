@@ -18,12 +18,15 @@
 export const MAX_EXPORT_BYTES = 10 * 1024 * 1024;
 
 function isTimestamp(value) {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) return false;
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value))
+    return false;
   const date = new Date(value);
   return Number.isFinite(date.valueOf()) && date.toISOString() === value;
 }
 
-function nullableTimestamp(value) { return value === null || isTimestamp(value); }
+function nullableTimestamp(value) {
+  return value === null || isTimestamp(value);
+}
 
 /**
  * Validates a Northstar Vault export string and creates an integrity receipt.
@@ -43,9 +46,11 @@ export async function createPrivacyReceipt(exportText, { signal } = {}) {
   if (typeof exportText !== 'string') {
     throw new TypeError('Invalid input: exportText must be a JSON string.');
   }
-  if (exportText.length > MAX_EXPORT_BYTES) throw new RangeError('Export is too large for a local receipt (10 MiB limit).');
+  if (exportText.length > MAX_EXPORT_BYTES)
+    throw new RangeError('Export is too large for a local receipt (10 MiB limit).');
   const rawBytes = new TextEncoder().encode(exportText);
-  if (rawBytes.byteLength > MAX_EXPORT_BYTES) throw new RangeError('Export is too large for a local receipt (10 MiB limit).');
+  if (rawBytes.byteLength > MAX_EXPORT_BYTES)
+    throw new RangeError('Export is too large for a local receipt (10 MiB limit).');
 
   // 3. Parse JSON string safely
   let parsed;
@@ -87,7 +92,9 @@ export async function createPrivacyReceipt(exportText, { signal } = {}) {
 
     // Required session fields
     if (typeof session.id !== 'string') {
-      throw new TypeError(`Invalid schema: Session at index [${sIdx}] is missing a valid string "id".`);
+      throw new TypeError(
+        `Invalid schema: Session at index [${sIdx}] is missing a valid string "id".`,
+      );
     }
     if (typeof session.title !== 'string') {
       throw new TypeError(`Invalid schema: Session at index [${sIdx}] needs a string "title".`);
@@ -109,8 +116,17 @@ export async function createPrivacyReceipt(exportText, { signal } = {}) {
     if (!nullableTimestamp(session.updatedAt)) {
       throw new TypeError(`Invalid schema: Session at index [${sIdx}] has invalid "updatedAt".`);
     }
-    if (session.compass !== null && (typeof session.compass !== 'object' || Array.isArray(session.compass) ||
-      !['clarity', 'agency', 'energy'].every(key => Number.isInteger(session.compass?.[key]) && session.compass[key] >= 1 && session.compass[key] <= 5))) {
+    if (
+      session.compass !== null &&
+      (typeof session.compass !== 'object' ||
+        Array.isArray(session.compass) ||
+        !['clarity', 'agency', 'energy'].every(
+          (key) =>
+            Number.isInteger(session.compass?.[key]) &&
+            session.compass[key] >= 1 &&
+            session.compass[key] <= 5,
+        ))
+    ) {
       throw new TypeError(`Invalid schema: Session at index [${sIdx}] has invalid "compass".`);
     }
     if (!Array.isArray(session.messages)) {

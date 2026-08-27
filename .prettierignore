@@ -1,0 +1,10 @@
+node_modules/
+.firebase/
+coverage/
+package-lock.json
+public/styles.css
+public/icons.svg
+public/icons-LICENSE.txt
+# Preserve the generated AI Studio original as provenance, not maintained source.
+docs/ai-studio/privacy-receipt.original.js
+*-debug.log*

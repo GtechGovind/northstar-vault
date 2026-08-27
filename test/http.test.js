@@ -8,15 +8,22 @@ async function withServer(run) {
   const server = app.listen(0, '127.0.0.1');
   await new Promise((resolve) => server.once('listening', resolve));
   const { port } = server.address();
-  try { await run(`http://127.0.0.1:${port}`); }
-  finally { await new Promise((resolve) => server.close(resolve)); }
+  try {
+    await run(`http://127.0.0.1:${port}`);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 }
 
 test('health endpoint exposes no environment detail', async () => {
   await withServer(async (base) => {
     const response = await fetch(`${base}/api/health`);
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { status: 'ok', service: 'northstar-vault', version: '1.0.0' });
+    assert.deepEqual(await response.json(), {
+      status: 'ok',
+      service: 'northstar-vault',
+      version: '1.0.0',
+    });
   });
 });
 

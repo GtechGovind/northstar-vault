@@ -1,0 +1,32 @@
+name: Quality and security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v6.0.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npm run check
+      - name: Check generated assets are reproducible
+        run: git diff --exit-code -- public/styles.css public/icons.svg public/icons-LICENSE.txt
+      - name: Verify identity isolation and deletion safeguards
+        run: npm run test:security
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
