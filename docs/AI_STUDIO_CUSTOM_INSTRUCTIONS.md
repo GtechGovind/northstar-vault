@@ -1,8 +1,8 @@
 # Northstar Vault — Google AI Studio custom instructions
 
-On 27 August 2026, a Northstar-specific security constitution was saved in Google AI Studio before requesting a Privacy Receipt enhancement. Build was attempted with Gemini 3.1 Pro Preview and Gemini 3.7 Flash, followed by a code-only Playground request. Each returned an internal error. **No resulting feature has been integrated or claimed as AI Studio-built.** A saved instruction is not evidence of a successful build.
+On 27 August 2026, a Northstar-specific security constitution was saved in Google AI Studio before requesting a Privacy Receipt enhancement. Initial Build and Playground attempts returned internal errors. A subsequent **Gemini 3.7 Flash** build succeeded and generated the reusable module, synthetic preview, tests and threat model. The reviewed module is now integrated into Northstar's Privacy Center. See [original output, screenshot and review provenance](ai-studio/README.md). This claim applies to the receipt enhancement, not the entire application.
 
-The intended feature hashes the exact exported JSON bytes locally and displays aggregate counts, with cancellation, validation and no network transmission. Its checksum must never be described as proof of erasure or authenticity. Retry generation, integrate reviewed output and record provenance before marking the requirement complete.
+The feature hashes the exact exported JSON bytes locally and displays aggregate counts, with cancellation, validation and no additional network transmission. Its checksum must never be described as proof of erasure or authenticity. Live release verification is tracked separately from successful generation and local tests.
 
 The following reusable directives reflect the saved constitution and the tested app boundaries:
 

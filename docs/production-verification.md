@@ -4,6 +4,8 @@ Security release `northstar-vault-privacy0827` (source `ac8c006`) promoted to **
 
 ## Current release evidence
 
+The new AI Studio-generated Privacy Receipt is integrated in source and passes local checks; its production deployment and browser verification are not yet recorded here. [Original output and reviewed changes](ai-studio/README.md) are preserved separately.
+
 - Cloud Run container build and readiness succeeded. Health returned 200; signed-out private requests returned 401 with `Cache-Control: no-store`.
 - The tested Firestore rules compiled and were successfully released to production.
 - The production HTML serves the updated cache-busted privacy client and explains erasure limits.
@@ -16,7 +18,7 @@ Security release `northstar-vault-privacy0827` (source `ac8c006`) promoted to **
 
 ## Security repair verification — 27 August 2026
 
-- `npm run check`: **15 passed, 0 failed** (AI configuration, HTTP boundaries and frontend lifecycle).
+- `npm run check`: **27 passed, 0 failed** (AI configuration, HTTP boundaries, frontend lifecycle and receipt integrity), rerun after the receipt integration.
 - `npm run test:security`: **9 passed, 0 failed** using Firebase Auth and Firestore emulators with two synthetic identities. Strict demo-project/localhost guards prevent these tests from targeting production.
 - `npm audit`: **0 vulnerabilities**, including development dependencies, after a scoped Firebase CLI Pub/Sub override.
 - `git diff --check`: passed.
@@ -68,5 +70,5 @@ These tests use deterministic in-process model output and are **not** a substitu
 - Complete the remaining production isolation/cleanup checks after browser recovery. Separate real-account sign-in and vault display passed; authenticated cross-ID API denial is proven by the guarded emulator suite, not by production token replay.
 - Production full-vault erase on an empty/synthetic-only test identity; never erase the owner's real journal for a test.
 - Successful Gemini Developer API preflight and pinned Secret Manager runtime migration; current preflight returns HTTP 429.
-- Genuine AI Studio-generated enhancement integrated into the app. Custom instructions were saved, but Build and Playground generation returned internal errors.
+- Production deployment and browser verification of the genuine AI Studio-generated receipt enhancement. Generation and reviewed source integration are complete; see [provenance](ai-studio/README.md).
 - Submit only accurate service declarations and refreshed public evidence. Prize eligibility and organizer selection remain unconfirmed.

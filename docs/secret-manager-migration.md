@@ -27,4 +27,4 @@ The project owner must resolve the provider preflight before switching traffic. 
 
 Cloud Run resolves secret-backed environment variables at instance start. This is supported secret retrieval; it does not require exposing the key or fetching it from the browser. See [Google's Secret Manager configuration guide](https://docs.cloud.google.com/run/docs/configuring/services/secrets).
 
-The AI Studio feature-build requirement is separate: custom instructions were saved, but repeated Build and Playground requests returned internal errors. No generated feature is represented as complete.
+The AI Studio feature-build requirement is separate. After earlier errors, a Gemini 3.7 Flash build generated the Privacy Receipt enhancement. The reviewed module is integrated and locally tested; [provenance](ai-studio/README.md) records its original output and changes. Its deployment verification is tracked separately from this provider migration.

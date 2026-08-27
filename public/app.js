@@ -1,9 +1,10 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
 import { getAuth, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
+import { createPrivacyReceipt } from './privacy-receipt.js?v=20260827-receipt';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const state = { auth: null, user: null, sessionId: null, sessions: [], busy: false, viewEpoch: 0 };
+const state = { auth: null, user: null, sessionId: null, sessions: [], busy: false, viewEpoch: 0, receipt: null, exportController: null };
 
 function toast(message) {
   const node = $('#toast');
@@ -111,6 +112,7 @@ async function loadSessions() {
 
 function resetSession() {
   state.viewEpoch += 1;
+  clearReceipt();
   state.busy = false;
   $('#send-button').disabled = false;
   state.sessionId = null;
@@ -248,18 +250,79 @@ async function deleteCurrentSession() {
   } catch (error) { if (epoch === state.viewEpoch) toast(error.message); }
 }
 
-async function exportData() {
-  const epoch = state.viewEpoch;
+function clearReceipt() {
+  state.exportController?.abort();
+  state.exportController = null;
+  state.receipt = null;
+  $('#privacy-receipt').classList.add('hidden');
+  ['#receipt-exported-at', '#receipt-reflections', '#receipt-messages', '#receipt-bytes', '#receipt-sha256', '#receipt-status'].forEach(id => { $(id).textContent = ''; });
+  $('#export-data').disabled = false;
+  $('#cancel-export').classList.add('hidden');
+}
+
+function downloadJSON(text, filename) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json;charset=utf-8' }));
+  const link = document.createElement('a');
   try {
-    const response = await api('/api/private/export');
-    const blob = await response.blob();
-    if (epoch !== state.viewEpoch) return;
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url; link.download = 'northstar-vault-export.json'; link.click();
+    link.href = url; link.download = filename;
+    document.body.append(link);
+    link.click();
+  } finally {
+    link.remove();
     URL.revokeObjectURL(url);
-    toast('Your private export is ready.');
-  } catch (error) { if (epoch === state.viewEpoch) toast(error.message); }
+  }
+}
+
+function renderReceipt(receipt) {
+  state.receipt = receipt;
+  $('#receipt-exported-at').textContent = receipt.exportedAt;
+  $('#receipt-reflections').textContent = String(receipt.reflectionCount);
+  $('#receipt-messages').textContent = String(receipt.messageCount);
+  $('#receipt-bytes').textContent = receipt.byteLength.toLocaleString();
+  $('#receipt-sha256').textContent = receipt.sha256;
+  $('#privacy-receipt').classList.remove('hidden');
+}
+
+async function exportData() {
+  clearReceipt();
+  const epoch = state.viewEpoch;
+  const controller = new AbortController();
+  state.exportController = controller;
+  const isCurrent = () => epoch === state.viewEpoch && state.exportController === controller && !controller.signal.aborted;
+  $('#export-data').disabled = true;
+  $('#cancel-export').classList.remove('hidden');
+  $('#receipt-status').textContent = 'Preparing your export and local integrity receipt…';
+  try {
+    const response = await api('/api/private/export', { signal: controller.signal });
+    const exportText = await response.text();
+    if (!isCurrent()) return;
+    let receipt;
+    let receiptError;
+    try {
+      receipt = await createPrivacyReceipt(exportText, { signal: controller.signal });
+    } catch (error) {
+      if (error.name === 'AbortError') throw error;
+      receiptError = error;
+    }
+    if (!isCurrent()) return;
+    // This is the same unchanged UTF-8 string used by the local digest.
+    // Receipt validation failure must never prevent access to the user's export.
+    downloadJSON(exportText, 'northstar-vault-export.json');
+    if (receiptError) {
+      $('#receipt-status').textContent = 'Export downloaded, but no integrity receipt could be created. Your export is still available; no checksum was verified.';
+    } else {
+      renderReceipt(receipt);
+      $('#receipt-status').textContent = 'Export downloaded. Receipt computed locally; no additional copy was sent anywhere.';
+    }
+  } catch (error) {
+    if (isCurrent()) $('#receipt-status').textContent = error.name === 'AbortError' ? 'Export cancelled.' : 'Export failed. No new export download or receipt was created.';
+  } finally {
+    if (state.exportController === controller) {
+      state.exportController = null;
+      $('#export-data').disabled = false;
+      $('#cancel-export').classList.add('hidden');
+    }
+  }
 }
 
 async function eraseVault() {
@@ -311,6 +374,15 @@ $('#delete-session').addEventListener('click', deleteCurrentSession);
 $('#privacy-button').addEventListener('click', () => $('#privacy-dialog').showModal());
 $('.dialog-close').addEventListener('click', () => $('#privacy-dialog').close());
 $('#export-data').addEventListener('click', exportData);
+$('#cancel-export').addEventListener('click', () => {
+  clearReceipt();
+  $('#receipt-status').textContent = 'Export cancelled. No new download was started.';
+});
+$('#clear-receipt').addEventListener('click', clearReceipt);
+$('#download-receipt').addEventListener('click', () => {
+  if (state.user && state.receipt) downloadJSON(JSON.stringify(state.receipt, null, 2), 'northstar-privacy-receipt.json');
+});
+$('#privacy-dialog').addEventListener('close', clearReceipt);
 $('#delete-data').addEventListener('click', eraseVault);
 $('#composer').addEventListener('submit', (event) => { event.preventDefault(); sendReflection($('#message-input').value); });
 $('#message-input').addEventListener('input', resizeComposer);

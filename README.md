@@ -2,7 +2,7 @@
 
 > Private clarity. Practical next steps.
 
-**Prize-readiness status — 27 August 2026:** the prototype is submitted, but eligibility is not yet fully verified. Production currently uses keyless Vertex AI. The Secret Manager/Gemini Developer API migration is prepared but has not passed its provider preflight; AI Studio feature-generation attempts currently return internal errors. See [verification and remaining requirements](docs/production-verification.md). Do not treat a Submitted badge as prize acceptance.
+**Prize-readiness status — 27 August 2026:** the prototype is submitted, but eligibility is not yet fully verified. Production currently uses keyless Vertex AI. The Secret Manager/Gemini Developer API migration is prepared but has not passed its provider preflight. A genuine AI Studio-generated Privacy Receipt enhancement is integrated and tested; [generation provenance](docs/ai-studio/README.md) and [release verification / remaining requirements](docs/production-verification.md) distinguish completed work from pending checks. Do not treat a Submitted badge as prize acceptance.
 
 Northstar Vault is a production-minded Gemini decision journal built for the Gen AI Academy APAC Cloud Run Ideathon. It turns an unstructured reflection into a transparent **Signal Map**: observed facts, possible assumptions, competing tensions, reasonable options, an honest counterpoint, and one testable 48-hour experiment.
 
@@ -14,6 +14,7 @@ The starter challenge asks for a journal. Northstar Vault adds an opinionated de
 - **Usability:** Google SSO, quick-start prompts, multi-turn reflections, history, responsive design, keyboard shortcut, and plain-language errors.
 - **Stability:** bounded reads, strict schemas, rate limits, structured-output normalization, health endpoint, safe failure states, and container checks.
 - **Security:** Firebase token verification, per-user Firestore paths, deny-by-default rules, CSP/security headers, keyless Vertex AI access, least-privilege deployment, export, and erasure.
+- **Data control:** an AI Studio-generated Privacy Receipt hashes the exact downloaded export locally and displays only aggregate counts, time, byte length and SHA-256. It is an integrity fingerprint, not a deletion certificate.
 
 ## Architecture
 
@@ -126,13 +127,13 @@ Then verify:
 3. A reflection produces a reply and Signal Map.
 4. Refresh preserves the session; sign-out clears private DOM and invalidates late responses.
 5. A second account cannot read the first account's session URL.
-6. Export downloads valid JSON.
+6. Export downloads valid JSON and displays a local receipt with the same exact-file SHA-256. Closing the Privacy Center clears the receipt; downloaded files remain on the device.
 7. Deleting one reflection and erasing the vault work only after confirmation.
 8. Browser network tools never show AI credentials.
 9. Firestore rules contain no open wildcard grants.
 10. Cloud Run has the required `dev-tutorial=cloud-run-ai-challenge` label.
 
-The local verification suite contains 15 unit/HTTP/client-lifecycle tests and 9 Auth/Firestore emulator tests. Emulator tests use only the guarded `demo-northstar-security` project, synthetic identities and deterministic AI responses; they are not evidence of two real production Google accounts. Vault erasure removes active journal records but retains an opaque anti-replay epoch marker. It does not delete the Google/Firebase account or certify deletion from cloud-provider backups.
+The local verification suite contains 27 unit/HTTP/client-lifecycle/receipt tests and 9 Auth/Firestore emulator tests. Emulator tests use only the guarded `demo-northstar-security` project, synthetic identities and deterministic AI responses; they are not evidence of two real production Google accounts. Vault erasure removes active journal records but retains an opaque anti-replay epoch marker. It does not delete the Google/Firebase account or certify deletion from cloud-provider backups.
 
 The development-only Pub/Sub dependency under Firebase CLI is pinned to 6.0.1 to avoid the vulnerable OpenTelemetry version in its older dependency tree. The full emulator suite is tested with this override; the production image installs no development dependencies.
 

@@ -6,7 +6,7 @@
   <meta name="description" content="Northstar Vault is a privacy-first Gemini decision journal that turns tangled thoughts into testable next steps.">
   <meta name="theme-color" content="#101311">
   <title>Northstar Vault — private clarity, practical next steps</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css?v=20260827-receipt">
 </head>
 <body>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -140,11 +140,29 @@
       <div><span>✓</span><p><strong>Deletion with safeguards</strong>Deletion requires confirmation. Late AI replies cannot restore erased entries. Vault erasure retains only an opaque anti-replay marker, not journal content; it does not delete your Google/Firebase account or cloud-provider backups.</p></div>
     </div>
     <div class="data-actions">
-      <button id="export-data" class="button button-secondary">Export my data</button>
+      <button id="export-data" class="button button-secondary">Export + privacy receipt</button>
+      <button id="cancel-export" class="button button-ghost hidden">Cancel export</button>
       <button id="delete-data" class="button button-danger">Erase my vault</button>
     </div>
+    <p id="receipt-status" class="receipt-status" role="status" aria-live="polite"></p>
+    <section id="privacy-receipt" class="privacy-receipt hidden" aria-label="Export integrity receipt">
+      <h3>Export integrity receipt</h3>
+      <p>Computed on this device with SHA-256. No journal text or IDs are included in the receipt.</p>
+      <dl class="receipt-counts">
+        <div><dt>Reflections</dt><dd id="receipt-reflections"></dd></div>
+        <div><dt>Messages</dt><dd id="receipt-messages"></dd></div>
+        <div><dt>UTF-8 bytes</dt><dd id="receipt-bytes"></dd></div>
+      </dl>
+      <p class="receipt-label">Exported at (UTC)</p><time id="receipt-exported-at"></time>
+      <p class="receipt-label">Exact-file SHA-256</p><code id="receipt-sha256"></code>
+      <p class="receipt-disclaimer">An integrity fingerprint—not proof of deletion, encryption or server authenticity. Closing this panel or signing out clears the receipt. Files you download remain on your device. Receipt calculation supports exports up to 10 MiB; larger exports still download.</p>
+      <div class="data-actions">
+        <button id="download-receipt" class="button button-secondary">Download receipt</button>
+        <button id="clear-receipt" class="button button-ghost">Clear receipt</button>
+      </div>
+    </section>
   </dialog>
 
-  <script type="module" src="/app.js?v=20260827-privacy"></script>
+  <script type="module" src="/app.js?v=20260827-receipt"></script>
 </body>
 </html>

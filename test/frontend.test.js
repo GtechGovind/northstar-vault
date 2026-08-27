@@ -2,14 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
+import { createPrivacyReceipt } from '../public/privacy-receipt.js';
 
 // Unit harness only: execute the real frontend with inert DOM/Firebase doubles.
 // Browser sign-in itself is verified separately against the live deployment.
 const source = (await readFile(new URL('../public/app.js', import.meta.url), 'utf8'))
   .replace(/^import .*;\n/gm, '').replace(/\nboot\(\);\s*$/, '');
 
-function harness(fetchImpl) {
+function harness(fetchImpl, makeReceipt = createPrivacyReceipt) {
   const nodes = new Map();
+  const downloads = [];
   function node() {
     const classes = new Set();
     return {
@@ -23,13 +25,15 @@ function harness(fetchImpl) {
   }
   const select = (id) => { if (!nodes.has(id)) nodes.set(id, node()); return nodes.get(id); };
   const context = vm.createContext({
-    document: { querySelector: select, querySelectorAll: () => [], createElement: node },
-    Headers, DOMException, URL, fetch: fetchImpl, console,
+    document: { querySelector: select, querySelectorAll: () => [], createElement: node, body: node() },
+    Headers, DOMException, Blob, AbortController,
+    URL: { createObjectURL: (blob) => { downloads.push(blob); return 'blob:synthetic'; }, revokeObjectURL() {} },
+    fetch: fetchImpl, createPrivacyReceipt: makeReceipt, console,
     setTimeout: () => 1, clearTimeout() {}, confirm: () => true, prompt: () => 'ERASE MY VAULT'
   });
   vm.runInContext(source, context);
   vm.runInContext("state.user = { uid: 'alice', getIdToken: async () => 'test-token' }", context);
-  return { run: (code) => vm.runInContext(code, context), select };
+  return { run: (code) => vm.runInContext(code, context), select, downloads };
 }
 
 test('sign-out clears private DOM, composer, identity and in-memory session state', () => {
@@ -60,13 +64,14 @@ for (const operation of ['loadSessions()', "openSession('synthetic-session')", "
     resolveFetch({
       ok: true, status: 200,
       json: async () => ({ sessions: [{ id: 'private-id' }], messages: [{role: 'user', text: 'PRIVATE'}], sessionId: 'private-id', analysis: {reply: 'PRIVATE'} }),
-      blob: async () => ({}) // URL.createObjectURL would throw if the guard failed.
+      text: async () => 'SYNTHETIC PRIVATE'
     });
     await operationResult;
     assert.equal(app.run('state.sessionId'), null);
     assert.equal(app.run('state.sessions.length'), 0);
     assert.equal(app.select('#messages').children.length, 0);
     assert.equal(app.select('#toast').textContent, '');
+    assert.equal(app.downloads.length, 0);
   });
 }
 
@@ -78,4 +83,52 @@ test('switching accounts while obtaining a token prevents sending the old reques
   app.run("state.user = {uid: 'bob'}; tokenReady('alice-token')");
   await assert.rejects(request, { name: 'AbortError' });
   assert.equal(calls, 0);
+});
+
+const emptyExport = '{"exportedAt":"2026-08-27T16:00:00.000Z","sessions":[]}';
+
+test('export and receipt hash the exact same downloaded bytes', async () => {
+  const app = harness(async () => ({ ok: true, status: 200, text: async () => emptyExport }));
+  await app.run('exportData()');
+  assert.equal(app.downloads.length, 1);
+  assert.equal(await app.downloads[0].text(), emptyExport);
+  assert.equal(app.run('state.receipt.sha256'), (await createPrivacyReceipt(emptyExport)).sha256);
+  assert.equal(app.select('#privacy-receipt').classList.contains('hidden'), false);
+  app.run('showLanding()');
+  assert.equal(app.run('state.receipt'), null);
+  assert.equal(app.select('#receipt-sha256').textContent, '');
+});
+
+test('a receipt failure does not block data export or falsely display a checksum', async () => {
+  const app = harness(async () => ({ ok: true, status: 200, text: async () => emptyExport }), async () => { throw new Error('failure'); });
+  await app.run('exportData()');
+  assert.equal(app.downloads.length, 1);
+  assert.equal(app.run('state.receipt'), null);
+  assert.match(app.select('#receipt-status').textContent, /no integrity receipt/);
+  assert.equal(app.select('#privacy-receipt').classList.contains('hidden'), true);
+});
+
+test('cancelling while hashing prevents both the download and a late receipt', async () => {
+  let release;
+  let started;
+  const hashing = new Promise(resolve => { started = resolve; });
+  const app = harness(async () => ({ ok: true, status: 200, text: async () => emptyExport }), () => {
+    started(); return new Promise(resolve => { release = resolve; });
+  });
+  const work = app.run('exportData()');
+  await hashing;
+  app.run('clearReceipt()');
+  release(await createPrivacyReceipt(emptyExport));
+  await work;
+  assert.equal(app.downloads.length, 0);
+  assert.equal(app.run('state.receipt'), null);
+  assert.equal(app.select('#export-data').disabled, false);
+});
+
+test('a failed authenticated export starts no download and creates no receipt', async () => {
+  const app = harness(async () => ({ ok: false, status: 500, json: async () => ({error:'failure'}) }));
+  await app.run('exportData()');
+  assert.equal(app.downloads.length, 0);
+  assert.equal(app.run('state.receipt'), null);
+  assert.match(app.select('#receipt-status').textContent, /Export failed/);
 });

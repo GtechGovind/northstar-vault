@@ -25,6 +25,16 @@ This model follows the five threat zones in the Gen AI Academy production direct
 
 ## Residual risks
 
+### Receipt enhancement
+
+- The exact authenticated export string is hashed locally with Web Crypto SHA-256 and downloaded without reserialization. The module has no network or storage calls.
+- Receipt work is capped at 10 MiB; oversized exports remain downloadable without a receipt. A failed receipt calculation is never displayed as verified.
+- The UI renders only five declared aggregate fields with `textContent`, clears them on close/sign-out, and discards late results after cancellation or identity changes.
+- The checksum is not a signature, an anonymity guarantee or proof of erasure. Downloaded files remain on the device; clearing the panel cannot remove them. Web Crypto itself is not interruptible, although pending results are discarded.
+- Exact-byte/Unicode hashing, malformed schema, cancellation, digest errors and frontend lifecycle are covered by automated tests. See [review provenance](ai-studio/README.md).
+
+### Application boundaries
+
 - A user can enter highly sensitive information. The interface warns that this is reflection support, not professional advice.
 - Gemini can produce inaccurate interpretations. The UI labels output as options and assumptions, never facts unless tied to the user's text.
 - Application Default Credentials let the Cloud Run service account use Firestore, verify Firebase users, and call Vertex AI. The deployment guide grants only Datastore User, Firebase Auth Viewer, and Vertex AI User.
