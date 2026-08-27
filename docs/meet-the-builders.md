@@ -2,6 +2,8 @@
 
 *Govind Yadav · Gen AI Academy APAC · 27 August 2026*
 
+**Updated 27 August 2026:** Northstar's current release calls the Gemini Developer API using a pinned Secret Manager credential and includes the AI Studio-generated local Privacy Receipt. The walkthrough below reflects this release; [verification notes](production-verification.md) distinguish current checks from the earlier Vertex build.
+
 An AI demo can produce an impressive answer in seconds. A useful application has
 to do more: understand the user's context, protect their data, handle failure and
 make it clear when a human is still in charge.
@@ -25,8 +27,9 @@ judgment or pretend to be a therapist.
 The technical design follows that same principle of clarity. Firebase handles
 Google sign-in. The backend verifies the Firebase ID token, derives the user's
 storage path from that verified identity, and stores histories in Firestore.
-Gemini is called through the Cloud Run service identity rather than an AI key
-embedded in the browser.
+Cloud Run retrieves a pinned Gemini API credential from Secret Manager using its
+service identity. The Gemini Developer API is called only on the server; the AI
+key is never embedded in the browser.
 
 The project includes a threat model, structured-output validation, bounded
 requests, export and erasure controls. Those features are not a claim that every
@@ -35,6 +38,34 @@ boundaries visible and testable.
 
 [Try Northstar Vault](https://northstar-vault-546899882968.asia-south1.run.app)
 · [Explore its source](https://github.com/GtechGovind/northstar-vault)
+
+### Demo walkthrough: current release
+
+1. Open the live prototype and use Google Sign-In. The server verifies the
+   Firebase token before listing the signed-in user's private Firestore history.
+2. Start a reflection with fictional demo material, for example: “I want to
+   rehearse a demo calmly. Suggest one small practice experiment.” The verified
+   test reply proposed making one uninterrupted recording to review pacing.
+3. Inspect the Signal Map beside the conversation. Facts and possible
+   assumptions are separated from options, a counterpoint and a 48-hour
+   experiment. These are model suggestions, not authoritative judgments.
+4. Ask a follow-up: “Remind me of the practice experiment, then turn it into a
+   three-minute checklist.” The live Gemini test recalled the earlier recording
+   exercise and offered review, recording and playback steps. Reloading the app
+   preserved all four messages in that test conversation.
+5. Open **Privacy center → Export + privacy receipt**. The app exports the
+   private history and computes an exact-file SHA-256 locally. The receipt
+   contains aggregate counts and a fingerprint, not journal text or user IDs.
+   It is not proof of erasure, encryption or server authenticity.
+6. Review the deletion controls and their limits before using them on your own
+   data. They require explicit confirmation. Automated tests cover deletion and
+   late-reply protection; the final live test-only erasure check is still
+   approval-gated. Signing out clears the private view.
+
+The walkthrough is based on synthetic production tests, not a fabricated sample
+presented as a live answer. Model wording varies. The repository includes
+27 unit/HTTP/client/receipt checks and nine guarded emulator security checks;
+these are useful evidence, not a claim of exhaustive security certification.
 
 ## CymbalMart: recommendations should know where you are planning
 

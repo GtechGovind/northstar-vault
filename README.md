@@ -2,7 +2,7 @@
 
 > Private clarity. Practical next steps.
 
-**Prize-readiness status — 27 August 2026:** the prototype is submitted, but eligibility is not yet fully verified. Production currently uses keyless Vertex AI. The Secret Manager/Gemini Developer API migration is prepared but has not passed its provider preflight. A genuine AI Studio-generated Privacy Receipt enhancement is integrated and tested; [generation provenance](docs/ai-studio/README.md) and [release verification / remaining requirements](docs/production-verification.md) distinguish completed work from pending checks. Do not treat a Submitted badge as prize acceptance.
+**Prize-readiness status — 27 August 2026:** the prototype is submitted, but eligibility is not yet fully verified. Production now uses the Gemini Developer API with a pinned Secret Manager credential. A genuine AI Studio-generated Privacy Receipt enhancement is integrated and tested; [generation provenance](docs/ai-studio/README.md) and [release verification / remaining requirements](docs/production-verification.md) distinguish completed work from pending checks. Final live deletion checks and the corrected submission/public demo update still require approval. Do not treat a Submitted badge as prize acceptance.
 
 Northstar Vault is a production-minded Gemini decision journal built for the Gen AI Academy APAC Cloud Run Ideathon. It turns an unstructured reflection into a transparent **Signal Map**: observed facts, possible assumptions, competing tensions, reasonable options, an honest counterpoint, and one testable 48-hour experiment.
 
@@ -13,10 +13,10 @@ The starter challenge asks for a journal. Northstar Vault adds an opinionated de
 - **Authenticity:** a distinct “Signal Map” interaction rather than a reskinned chat template.
 - **Usability:** Google SSO, quick-start prompts, multi-turn reflections, history, responsive design, keyboard shortcut, and plain-language errors.
 - **Stability:** bounded reads, strict schemas, rate limits, structured-output normalization, health endpoint, safe failure states, and container checks.
-- **Security:** Firebase token verification, per-user Firestore paths, deny-by-default rules, CSP/security headers, keyless Vertex AI access, least-privilege deployment, export, and erasure.
+- **Security:** Firebase token verification, per-user Firestore paths, deny-by-default rules, CSP/security headers, server-only AI credentials, least-privilege deployment, export, and erasure.
 - **Data control:** an AI Studio-generated Privacy Receipt hashes the exact downloaded export locally and displays only aggregate counts, time, byte length and SHA-256. It is an integrity fingerprint, not a deletion certificate.
 
-## Architecture
+## Deployment architecture (Gemini API mode)
 
 ```text
 Browser
@@ -27,12 +27,13 @@ Cloud Run / Express
   ├─ Verify ID token (Firebase Admin)
   ├─ Validate + rate-limit
   ├─ Read/write users/{verified uid}/...
-  └─ Keyless service-account call to Vertex AI
+  ├─ Pinned Secret Manager credential resolved at startup
+  └─ Server-side call to the Gemini Developer API
           ↓                         ↓
-Cloud Firestore                Gemini on Vertex AI
+Cloud Firestore                Gemini Developer API
 ```
 
-The browser never receives AI credentials and never chooses a Firestore user path. Direct browser writes are denied; the authenticated server validates all mutations. See [the threat model](docs/threat-model.md), [AI Studio constitution](docs/AI_STUDIO_CUSTOM_INSTRUCTIONS.md), and [the staged Secret Manager migration](docs/secret-manager-migration.md).
+The browser never receives AI credentials and never chooses a Firestore user path. Direct browser writes are denied; the authenticated server validates all mutations. See [the threat model](docs/threat-model.md), [AI Studio constitution](docs/AI_STUDIO_CUSTOM_INSTRUCTIONS.md), and [Secret Manager release verification](docs/secret-manager-migration.md). Explicit Vertex mode remains supported for rollback; it is never selected silently when a Gemini key is missing.
 
 ## Prerequisites
 
@@ -40,7 +41,8 @@ The browser never receives AI credentials and never chooses a Firestore user pat
 - Firebase added to that project
 - Google Sign-In enabled in Firebase Authentication
 - Firestore Native database
-- Vertex AI API enabled in the Google Cloud project
+- Gemini Developer API enabled, with an AI Studio key and available provider quota/credits
+- The Gemini key stored in Secret Manager as `gemini-api-key`, with a pinned enabled version
 - `gcloud`, Node.js 22, and Java 21 for the Firestore emulator (`firebase-tools` is pinned as a development dependency)
 
 ## Local development
@@ -52,6 +54,7 @@ gcloud auth application-default login
 cp .env.example .env
 npm ci
 set -a && source .env && set +a
+export GEMINI_API_KEY="$(gcloud secrets versions access YOUR_PINNED_VERSION --secret=gemini-api-key --project=YOUR_PROJECT_ID)"
 npm run dev
 ```
 
@@ -72,19 +75,22 @@ firebase deploy --only firestore:rules
 
 ## Secure Google Cloud deployment
 
-Choose a nearby Cloud Run region, for example `asia-south1`. Replace placeholders before running.
+Choose a nearby Cloud Run region, for example `asia-south1`. Replace placeholders before running. These are fresh-project setup instructions: reuse existing identities/secrets and skip creation or grants already present. Save your AI Studio key directly in Secret Manager; never paste it into source or a command argument.
 
 ```bash
 export PROJECT_ID="YOUR_PROJECT_ID"
 export REGION="asia-south1"
 export SERVICE="northstar-vault"
 export SERVICE_ACCOUNT="northstar-vault-sa@${PROJECT_ID}.iam.gserviceaccount.com"
+export GEMINI_SECRET_VERSION="YOUR_PINNED_VERSION"
 
-gcloud services enable \
+gcloud services enable --project="$PROJECT_ID" \
   run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com \
-  aiplatform.googleapis.com firestore.googleapis.com firebase.googleapis.com
+  generativelanguage.googleapis.com secretmanager.googleapis.com \
+  firestore.googleapis.com firebase.googleapis.com
 
 gcloud iam service-accounts create northstar-vault-sa \
+  --project="$PROJECT_ID" \
   --display-name="Northstar Vault Cloud Run"
 
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
@@ -95,17 +101,20 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:${SERVICE_ACCOUNT}" \
   --role="roles/firebaseauth.viewer"
 
-gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+gcloud secrets add-iam-policy-binding gemini-api-key \
+  --project="$PROJECT_ID" \
   --member="serviceAccount:${SERVICE_ACCOUNT}" \
-  --role="roles/aiplatform.user"
+  --role="roles/secretmanager.secretAccessor"
 
 gcloud run deploy "$SERVICE" \
+  --project="$PROJECT_ID" \
   --source . \
   --region "$REGION" \
   --service-account "$SERVICE_ACCOUNT" \
   --allow-unauthenticated \
   --min=0 --max=3 --concurrency=40 --cpu=1 --memory=512Mi \
-  --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=1,GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=global,FIREBASE_PROJECT_ID=${PROJECT_ID},FIREBASE_API_KEY=YOUR_PUBLIC_FIREBASE_API_KEY,FIREBASE_AUTH_DOMAIN=${PROJECT_ID}.firebaseapp.com,FIREBASE_APP_ID=YOUR_PUBLIC_FIREBASE_APP_ID,GEMINI_MODEL=gemini-3.1-flash-lite" \
+  --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=0,GOOGLE_CLOUD_PROJECT=${PROJECT_ID},FIREBASE_PROJECT_ID=${PROJECT_ID},FIREBASE_API_KEY=YOUR_PUBLIC_FIREBASE_API_KEY,FIREBASE_AUTH_DOMAIN=${PROJECT_ID}.firebaseapp.com,FIREBASE_APP_ID=YOUR_PUBLIC_FIREBASE_APP_ID,GEMINI_MODEL=gemini-3.1-flash-lite" \
+  --update-secrets="GEMINI_API_KEY=gemini-api-key:${GEMINI_SECRET_VERSION}" \
   --labels="dev-tutorial=cloud-run-ai-challenge"
 ```
 
@@ -141,8 +150,8 @@ The development-only Pub/Sub dependency under Firebase CLI is pinned to 6.0.1 to
 
 - Firebase Authentication — federated Google Sign-In
 - Cloud Firestore — user-isolated histories and structured Signal Maps
-- Gemini on Vertex AI — multi-turn reflection and structured analysis
-- Cloud Run service identity — keyless, least-privilege AI access
+- Gemini Developer API — multi-turn reflection and structured analysis
+- Secret Manager — pinned server-only Gemini credential, accessed by the Cloud Run identity
 - Cloud Run — containerized production endpoint
 
 Northstar Vault is reflection support, not medical, legal, or financial advice.

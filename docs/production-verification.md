@@ -1,10 +1,20 @@
 # Production verification
 
-Receipt release `northstar-vault-receipt0827` (source `b263037`) promoted to **100% production traffic** on 27 August 2026, after no-traffic verification. Immediate rollback revision: `northstar-vault-privacy0827` (security release source `ac8c006`). Earlier known-good revision: `northstar-vault-00007-fjl`.
+Gemini/Secret Manager release `northstar-vault-gemini0827` (source `e3b9068`) promoted to **100% production traffic** on 27 August 2026, after no-traffic verification. Immediate rollback revision: `northstar-vault-receipt0827` (receipt source `b263037`, Vertex mode). Earlier security revision: `northstar-vault-privacy0827` (source `ac8c006`).
 
 ## Current release evidence
 
-The AI Studio-generated Privacy Receipt is live and browser-verified. [Original output and reviewed changes](ai-studio/README.md) are preserved separately. The release kept the existing Vertex mode, model, service identity and maximum of three instances; no permission or billing change was made.
+- The existing pinned Secret Manager version passed a real Gemini Developer API preflight with HTTP 200. The earlier HTTP 429 credit blocker is resolved; this does not establish approval of every separate Google account-verification process.
+- The Cloud Run revision explicitly uses `GOOGLE_GENAI_USE_VERTEXAI=0` and `GEMINI_API_KEY` references `gemini-api-key:2`. No plaintext key is present in revision configuration or public assets.
+- Secret-specific Accessor permission for the existing runtime service account was verified. No new IAM grant or key rotation was needed. The existing region, identity and maximum of three instances were preserved.
+- The no-traffic candidate passed health 200, private export 401 with `Cache-Control: no-store`, exact served-source checks and Firebase-only public configuration. The production endpoint was checked after traffic promotion.
+- A real signed-in Google account continued its explicitly synthetic conversation through Gemini. The reply correctly recalled the earlier practice experiment and produced a structured Signal Map. All **four messages survived a full reload**.
+- The Privacy Center generated a receipt for **one reflection, four messages and 2,607 UTF-8 bytes**, at `2026-08-27T17:35:09.354Z`. Its displayed SHA-256 was `4b753a769938256abd9d50bb67e58bb50928e0d38c33627cd40d90cd0afce9e9`. The current-release UI reported a successful export; the independently verified downloaded-file result below is from the preceding receipt release, not this new file.
+- Unit/HTTP/client/receipt checks, emulator security checks and the complete dependency audit were rerun for this release: **27 + 9 checks passed; 0 reported vulnerabilities**.
+
+## Earlier receipt and security release evidence
+
+The AI Studio-generated Privacy Receipt was first deployed in `northstar-vault-receipt0827`. [Original output and reviewed changes](ai-studio/README.md) are preserved separately. That release retained Vertex mode, the model, service identity and maximum of three instances; no permission or billing change was made by it.
 
 - The no-traffic candidate and production endpoint returned health 200 and private export 401 with `no-store`. The served app, receipt module and stylesheet matched the tested source exactly.
 - A signed-in synthetic-only test vault exported one reflection and two messages. Its receipt reported **1,504 UTF-8 bytes** and the expected five aggregate fields.
@@ -15,7 +25,7 @@ The AI Studio-generated Privacy Receipt is live and browser-verified. [Original 
 - Cloud Run container build and readiness succeeded. Health returned 200; signed-out private requests returned 401 with `Cache-Control: no-store`.
 - The tested Firestore rules compiled and were successfully released to production.
 - The production HTML serves the updated cache-busted privacy client and explains erasure limits.
-- The preserved provider is `GOOGLE_GENAI_USE_VERTEXAI=1`, model `gemini-3.1-flash-lite`; no Developer API migration has been claimed.
+- That earlier release used `GOOGLE_GENAI_USE_VERTEXAI=1`, model `gemini-3.1-flash-lite`. The current release above supersedes its provider configuration.
 - A real signed-in production reflection using explicitly synthetic text generated a structured reply and Signal Map after promotion.
 - A second real Google account signed in successfully and initially saw an empty vault, without the first account's existing or synthetic entries. Its own synthetic reflection also produced a real structured response. No project IAM access was granted to that second account.
 - The earlier live full-vault confirmation check was interrupted by browser-control failure. After recovery the synthetic entry remained present. No live erasure success is claimed; fresh approval for test-only deletion/erasure has been requested. Existing journal entries were not targeted.
@@ -24,7 +34,7 @@ The AI Studio-generated Privacy Receipt is live and browser-verified. [Original 
 
 ## Security repair verification — 27 August 2026
 
-- `npm run check`: **27 passed, 0 failed** (AI configuration, HTTP boundaries, frontend lifecycle and receipt integrity), rerun after the receipt integration.
+- `npm run check`: **27 passed, 0 failed** (AI configuration, HTTP boundaries, frontend lifecycle and receipt integrity), rerun for the Gemini release.
 - `npm run test:security`: **9 passed, 0 failed** using Firebase Auth and Firestore emulators with two synthetic identities. Strict demo-project/localhost guards prevent these tests from targeting production.
 - `npm audit`: **0 vulnerabilities**, including development dependencies, after a scoped Firebase CLI Pub/Sub override.
 - `git diff --check`: passed.
@@ -62,18 +72,18 @@ These tests use deterministic in-process model output and are **not** a substitu
 - HTTP Strict Transport Security is enabled for one year with subdomains.
 - MIME sniffing protection is enabled.
 
-## Identity and AI evidence
+## Earlier Vertex identity and AI evidence
 
 - Google Sign-In, private-session listing, and a complete structured reflection passed in production.
-- Gemini runs through Vertex AI using the Cloud Run service identity; no API key is required by the request path.
-- The dedicated service account uses Datastore User, Firebase Auth Viewer and Vertex AI User. A fresh secret-specific IAM check also found Secret Accessor on `gemini-api-key`; that does not establish that the production request path consumes the secret. No service-account key file is used.
+- The earlier release ran Gemini through Vertex AI using the Cloud Run service identity, without an API key in that request path. Current production uses the pinned Secret Manager key described above.
+- The dedicated service account has Datastore User, Firebase Auth Viewer and Vertex AI User. The Vertex role is retained for rollback. Secret Accessor is scoped to `gemini-api-key`, and its use by the current runtime is verified. No service-account key file is used.
 - The structured response populated facts, assumptions, options, a counterpoint, compass ratings, and a 48-hour experiment.
 - A follow-up reflection used prior context, and all four messages survived a full browser reload.
 - Private export completed successfully and displayed its success confirmation.
 
 ## Remaining manual checks
 
-- Complete the remaining production isolation/cleanup checks after browser recovery. Separate real-account sign-in and vault display passed; authenticated cross-ID API denial is proven by the guarded emulator suite, not by production token replay.
-- Production full-vault erase on an empty/synthetic-only test identity; never erase the owner's real journal for a test.
-- Successful Gemini Developer API preflight and pinned Secret Manager runtime migration; current preflight returns HTTP 429.
-- Submit only accurate service declarations and refreshed public evidence. Prize eligibility and organizer selection remain unconfirmed.
+- Complete the approval-gated production deletion/cleanup checks. Separate real-account sign-in and vault display passed; authenticated cross-ID API denial is proven by the guarded emulator suite, not by production token replay.
+- Delete only the explicitly synthetic test reflection in account A, preserving its four existing reflections, and test full-vault erase only on the synthetic-only account B. No live erasure success is claimed yet.
+- Obtain approval to save the refreshed existing LinkedIn demo post and submit the corrected Ideathon brief. The Secret Manager declaration is now supported by the verified runtime.
+- Prize eligibility, workshop attendance and organizer selection remain unconfirmed; submission receipts alone do not establish them.

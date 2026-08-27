@@ -34,13 +34,13 @@ The strongest demo is a story, not a feature tour. Record at 1080p, keep the cur
 
 **Visual:** Open Privacy Center, show export controls, then cut to the repository threat model and Firestore rules.
 
-**Voiceover:** “Security is visible and testable: owner-bound Firestore rules, Firebase token verification, a deny-by-default data model, strict schemas, rate limits, CSP headers, export and erasure. Cloud Run calls Vertex AI with its least-privilege service identity, so no Gemini key reaches the browser.”
+**Voiceover:** “Security is visible and testable: verified identity, owner-bound data, strict schemas, rate limits, export and confirmed erasure. Cloud Run calls Gemini with a pinned Secret Manager key that never reaches the browser. The AI Studio-built Privacy Receipt hashes the exact exported file locally—it is not a deletion certificate.”
 
 ## 80–90s — close
 
 **Visual:** Return to the hero, then show the Cloud Run service URL and green health response.
 
-**Voiceover:** “Northstar Vault: private clarity, practical next steps—built with Firebase, Firestore, Gemini on Vertex AI, and Cloud Run.”
+**Voiceover:** “Northstar Vault: private clarity, practical next steps—built with Firebase, Firestore, Gemini, Secret Manager, and Cloud Run.”
 
 On-screen end card: `#AccelerateAIwithCloudRun`
 
@@ -53,11 +53,12 @@ What makes it production-minded:
 - Firebase Google Sign-In with server-side ID-token verification
 - user-isolated Firestore paths and deny-by-default rules
 - Gemini structured output with validation and prompt-injection boundaries
-- keyless Vertex AI access through the Cloud Run service account
+- a pinned server-only Gemini API key from Secret Manager
+- an AI Studio-generated local Privacy Receipt with exact-file SHA-256
 - export, erasure, rate limits, CSP headers, health checks, and a five-zone threat model
 
 The most important design choice: Northstar helps people choose; it never pretends to decide for them.
 
-Built on Cloud Run with Firebase, Firestore, and Gemini on Vertex AI.
+Built on Cloud Run with Firebase, Firestore, Gemini Developer API and Secret Manager.
 
 #AccelerateAIwithCloudRun #Gemini #GoogleCloud #Firebase #CloudRun #BuildInPublic
