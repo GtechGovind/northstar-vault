@@ -12,7 +12,7 @@ https://github.com/GtechGovind/northstar-vault
 
 https://www.linkedin.com/feed/update/urn:li:activity:7498550271413809152/
 
-The public post contains `#AccelerateAIwithCloudRun`. Its code link resolves to the personal `GtechGovind` repository. The portal submission exists, but the checked Secret Manager capability is not yet backed by the production request path. Correct that declaration until the migration in `docs/secret-manager-migration.md` is verified. AI Studio feature-build evidence remains blocked by internal errors, not complete.
+The public post contains `#AccelerateAIwithCloudRun`. Its code link resolves to the personal `GtechGovind` repository. The portal submission exists, but the persisted Secret Manager declaration is not yet backed by the production request path. An unchecked correction was prepared, but confirmation would consume evaluation attempt 3, so it was cancelled while other requirements remain blocked. Correct the declaration in the complete final bundle. AI Studio feature-build evidence remains blocked by internal errors, not complete.
 
 ## Brief description (under 1,024 characters)
 
@@ -37,16 +37,17 @@ Northstar Vault is a privacy-first decision journal that turns tangled reflectio
 
 ## Final validation before submission
 
-- [ ] Live Cloud Run URL works in a signed-out/incognito browser
-- [ ] Required `dev-tutorial=cloud-run-ai-challenge` label is present
-- [ ] Google Sign-In works on the production domain
+- [x] Live Cloud Run public health and signed-out private-API rejection verified
+- [x] Required `dev-tutorial=cloud-run-ai-challenge` label is present
+- [x] Google Sign-In works on the production domain for two real Google accounts
 - [x] Two synthetic-account isolation and deletion tests pass in Auth/Firestore emulators
-- [ ] Two real production Google-account smoke test
+- [x] Second real account opens its own vault without the first account's entries
+- [ ] Remaining production deletion/cleanup checks after browser recovery
 - [ ] Multi-turn context survives reload
 - [x] No AI credential is in source or public configuration; production currently uses keyless Vertex AI
 - [ ] Gemini Developer API successfully called through a pinned Secret Manager credential
 - [ ] Export, single-entry deletion, and full-vault erasure work
-- [ ] Public repository contains deployment steps, Firestore rules, threat model, and test output
+- [x] Personal public repository contains deployment steps, Firestore rules, threat model and reproducible verification results
 - [x] Public social post includes `#AccelerateAIwithCloudRun`
 - [ ] Genuine AI Studio-generated enhancement integrated and evidenced (current generation attempts fail)
 - [ ] All three public links work before pressing Submit
