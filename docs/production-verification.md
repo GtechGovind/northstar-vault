@@ -1,8 +1,19 @@
 # Production verification
 
+Current deployment: responsive shell `northstar-vault-shell0828`, source
+`dd261c16207edd67e00d466e5de5c639ddf0086f`, at **100% production traffic** on
+28 August 2026. Immediate rollback: `northstar-vault-tailwind0828`. The
+[responsive release report](ui-release.md) records the device-size matrix, actual
+window checks, 55 automated tests, accessibility results, CI, staged rollout,
+asset integrity, and restored production authentication. This UI release retains
+the provider/secret configuration below; it did not repeat a real Gemini request
+or delete journal data.
+
+## Earlier Gemini provider release — 27 August 2026
+
 Gemini/Secret Manager release `northstar-vault-gemini0827` (source `e3b9068`) promoted to **100% production traffic** on 27 August 2026, after no-traffic verification. Immediate rollback revision: `northstar-vault-receipt0827` (receipt source `b263037`, Vertex mode). Earlier security revision: `northstar-vault-privacy0827` (source `ac8c006`).
 
-## Current release evidence
+### Provider release evidence
 
 - The existing pinned Secret Manager version passed a real Gemini Developer API preflight with HTTP 200. The earlier HTTP 429 credit blocker is resolved; this does not establish approval of every separate Google account-verification process.
 - The Cloud Run revision explicitly uses `GOOGLE_GENAI_USE_VERTEXAI=0` and `GEMINI_API_KEY` references `gemini-api-key:2`. No plaintext key is present in revision configuration or public assets.

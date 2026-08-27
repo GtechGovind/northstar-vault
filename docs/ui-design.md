@@ -20,6 +20,12 @@ and [responsive macro layouts](https://web.dev/learn/design/macro-layouts).
 Web breakpoints are content-driven; Android density-independent units are not
 treated as an exact CSS-pixel device classification.
 
+Browser baseline follows [Tailwind v4 compatibility](https://tailwindcss.com/docs/compatibility):
+Chrome 111+, Safari 16.4+, and Firefox 128+. This is a support target, not evidence
+that every browser/device combination was exercised in this release. The shell
+uses the library’s [named container queries](https://tailwindcss.com/docs/responsive-design),
+not a third-party device-detection script.
+
 ## Layout contract
 
 | Shell width (16px base font) | Persistent content                         | On-demand content                                |
