@@ -131,12 +131,13 @@
     <span class="orbit-mark small">◇</span>
     <p class="eyebrow center"><span></span> Privacy center</p>
     <h2>Your vault, your control.</h2>
-    <p>Google Sign-In proves who you are. Every database path is bound to your Firebase user ID, and Gemini runs server-side through keyless Vertex AI identity.</p>
+    <p>Google Sign-In proves who you are. Every private API binds database paths to your verified Firebase user ID. Gemini currently runs server-side through keyless Vertex AI.</p>
     <div class="security-list">
       <div><span>✓</span><p><strong>Identity verified server-side</strong>Firebase ID tokens are validated on every private API request.</p></div>
-      <div><span>✓</span><p><strong>Strict user isolation</strong>Your reflections live only under your own Firestore path.</p></div>
+      <div><span>✓</span><p><strong>Strict user isolation</strong>Your reflections live under your own Firestore path. Direct browser writes are denied; changes use the authenticated API.</p></div>
       <div><span>✓</span><p><strong>Keyless AI access</strong>Cloud Run calls Vertex AI with its least-privilege service account—no Gemini API key is sent to the browser.</p></div>
       <div><span>✓</span><p><strong>No model training claim</strong>The app does not reuse your entries to train its own models.</p></div>
+      <div><span>✓</span><p><strong>Deletion with safeguards</strong>Deletion requires confirmation. Late AI replies cannot restore erased entries. Vault erasure retains only an opaque anti-replay marker, not journal content; it does not delete your Google/Firebase account or cloud-provider backups.</p></div>
     </div>
     <div class="data-actions">
       <button id="export-data" class="button button-secondary">Export my data</button>
@@ -144,6 +145,6 @@
     </div>
   </dialog>
 
-  <script type="module" src="/app.js?v=20260827-2"></script>
+  <script type="module" src="/app.js?v=20260827-privacy"></script>
 </body>
 </html>

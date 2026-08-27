@@ -3,7 +3,7 @@ import { getAuth, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, sig
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
-const state = { auth: null, user: null, sessionId: null, sessions: [], busy: false };
+const state = { auth: null, user: null, sessionId: null, sessions: [], busy: false, viewEpoch: 0 };
 
 function toast(message) {
   const node = $('#toast');
@@ -14,9 +14,11 @@ function toast(message) {
 }
 
 async function api(path, options = {}) {
+  const user = state.user;
   const headers = new Headers(options.headers || {});
   if (options.body) headers.set('Content-Type', 'application/json');
-  if (state.user) headers.set('Authorization', `Bearer ${await state.user.getIdToken()}`);
+  if (user) headers.set('Authorization', `Bearer ${await user.getIdToken()}`);
+  if (!user || user !== state.user) throw new DOMException('Session changed.', 'AbortError');
   const response = await fetch(path, { ...options, headers });
   if (!response.ok) {
     const detail = await response.json().catch(() => ({}));
@@ -60,6 +62,14 @@ function showWorkspace(user) {
 }
 
 function showLanding() {
+  state.sessions = [];
+  resetSession();
+  $('#privacy-dialog').close();
+  $('#profile-name').textContent = '';
+  $('#profile-email').textContent = '';
+  $('#profile-photo').removeAttribute('src');
+  $('#toast').textContent = '';
+  $('#toast').classList.remove('show');
   $('#workspace').classList.add('hidden');
   $('#landing').classList.remove('hidden');
 }
@@ -89,16 +99,24 @@ function renderSessions() {
 }
 
 async function loadSessions() {
+  const epoch = state.viewEpoch;
   try {
     const response = await api('/api/private/sessions');
-    state.sessions = (await response.json()).sessions;
+    const data = await response.json();
+    if (epoch !== state.viewEpoch) return;
+    state.sessions = data.sessions;
     renderSessions();
-  } catch (error) { toast(error.message); }
+  } catch (error) { if (epoch === state.viewEpoch) toast(error.message); }
 }
 
 function resetSession() {
+  state.viewEpoch += 1;
+  state.busy = false;
+  $('#send-button').disabled = false;
   state.sessionId = null;
+  $('#message-input').value = '';
   $('#messages').replaceChildren();
+  $('#signal-content').replaceChildren();
   $('#empty-state').classList.remove('hidden');
   $('#delete-session').classList.add('hidden');
   $('#signal-empty').classList.remove('hidden');
@@ -153,11 +171,13 @@ function renderSignal(analysis) {
 
 async function openSession(id) {
   if (state.busy) return;
+  const epoch = ++state.viewEpoch;
   try {
     state.sessionId = id;
     renderSessions();
     const response = await api(`/api/private/sessions/${encodeURIComponent(id)}`);
     const data = await response.json();
+    if (epoch !== state.viewEpoch) return;
     $('#messages').replaceChildren();
     $('#empty-state').classList.add('hidden');
     $('#delete-session').classList.remove('hidden');
@@ -168,11 +188,12 @@ async function openSession(id) {
       $('#signal-empty').classList.remove('hidden');
       $('#signal-content').classList.add('hidden');
     }
-  } catch (error) { toast(error.message); }
+  } catch (error) { if (epoch === state.viewEpoch) toast(error.message); }
 }
 
 async function sendReflection(message) {
   if (state.busy || !message.trim()) return;
+  const epoch = state.viewEpoch;
   state.busy = true;
   $('#send-button').disabled = true;
   $('#message-input').value = '';
@@ -185,6 +206,7 @@ async function sendReflection(message) {
       body: JSON.stringify({ message: message.trim(), ...(state.sessionId && { sessionId: state.sessionId }) })
     });
     const data = await response.json();
+    if (epoch !== state.viewEpoch) return;
     state.sessionId = data.sessionId;
     thinking.remove();
     addMessage('assistant', data.analysis.reply);
@@ -192,13 +214,16 @@ async function sendReflection(message) {
     $('#delete-session').classList.remove('hidden');
     await loadSessions();
   } catch (error) {
+    if (epoch !== state.viewEpoch) return;
     thinking.remove();
     addMessage('assistant', 'I could not process that reflection just now. Your words were not added to an AI response—please try again.');
     toast(error.message);
   } finally {
-    state.busy = false;
-    $('#send-button').disabled = false;
-    $('#message-input').focus();
+    if (epoch === state.viewEpoch) {
+      state.busy = false;
+      $('#send-button').disabled = false;
+      $('#message-input').focus();
+    }
   }
 }
 
@@ -210,37 +235,48 @@ function resizeComposer() {
 
 async function deleteCurrentSession() {
   if (!state.sessionId || !confirm('Permanently delete this reflection? This cannot be undone.')) return;
+  const epoch = state.viewEpoch;
+  const id = state.sessionId;
   try {
-    await api(`/api/private/sessions/${encodeURIComponent(state.sessionId)}`, { method: 'DELETE' });
+    await api(`/api/private/sessions/${encodeURIComponent(id)}`, {
+      method: 'DELETE', body: JSON.stringify({ confirmation: 'DELETE REFLECTION' })
+    });
+    if (epoch !== state.viewEpoch) return;
     resetSession();
     await loadSessions();
     toast('Reflection permanently deleted.');
-  } catch (error) { toast(error.message); }
+  } catch (error) { if (epoch === state.viewEpoch) toast(error.message); }
 }
 
 async function exportData() {
+  const epoch = state.viewEpoch;
   try {
     const response = await api('/api/private/export');
     const blob = await response.blob();
+    if (epoch !== state.viewEpoch) return;
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url; link.download = 'northstar-vault-export.json'; link.click();
     URL.revokeObjectURL(url);
     toast('Your private export is ready.');
-  } catch (error) { toast(error.message); }
+  } catch (error) { if (epoch === state.viewEpoch) toast(error.message); }
 }
 
 async function eraseVault() {
   const phrase = prompt('This permanently deletes every reflection. Type ERASE MY VAULT to continue.');
   if (phrase !== 'ERASE MY VAULT') return;
+  const epoch = state.viewEpoch;
   try {
-    await api('/api/private/data', { method: 'DELETE' });
+    await api('/api/private/data', {
+      method: 'DELETE', body: JSON.stringify({ confirmation: phrase })
+    });
+    if (epoch !== state.viewEpoch) return;
     $('#privacy-dialog').close();
     resetSession();
     state.sessions = [];
     renderSessions();
     toast('Your vault has been permanently erased.');
-  } catch (error) { toast(error.message); }
+  } catch (error) { if (epoch === state.viewEpoch) toast(error.message); }
 }
 
 async function boot() {
@@ -264,7 +300,12 @@ async function boot() {
 }
 
 ['#sign-in-top', '#sign-in-main'].forEach((id) => $(id).addEventListener('click', signIn));
-$('#sign-out').addEventListener('click', () => signOut(state.auth));
+$('#sign-out').addEventListener('click', async () => {
+  state.user = null;
+  showLanding();
+  try { await signOut(state.auth); }
+  catch { toast('Sign-out could not be confirmed. Please close this tab and try again.'); }
+});
 $('#new-session').addEventListener('click', resetSession);
 $('#delete-session').addEventListener('click', deleteCurrentSession);
 $('#privacy-button').addEventListener('click', () => $('#privacy-dialog').showModal());

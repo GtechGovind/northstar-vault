@@ -109,19 +109,25 @@ function vertexEnabled() {
   return /^(1|true)$/i.test(process.env.GOOGLE_GENAI_USE_VERTEXAI || '');
 }
 
-function createAIClient() {
-  if (vertexEnabled()) {
-    const project = process.env.GOOGLE_CLOUD_PROJECT;
+function aiClientOptions(env = process.env) {
+  if (/^(1|true)$/i.test(env.GOOGLE_GENAI_USE_VERTEXAI || '')) {
+    const project = env.GOOGLE_CLOUD_PROJECT;
     if (!project) throw new Error('Vertex AI project is not configured');
-    return new GoogleGenAI({
+    return {
       vertexai: true,
       project,
-      location: process.env.GOOGLE_CLOUD_LOCATION || 'global'
-    });
+      location: env.GOOGLE_CLOUD_LOCATION || 'global'
+    };
   }
 
-  if (!process.env.GEMINI_API_KEY) throw new Error('AI service is not configured');
-  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  // Cloud Run resolves this server-only variable from a pinned Secret Manager
+  // version before starting the container. Never add it to /api/config.
+  if (!env.GEMINI_API_KEY?.trim()) throw new Error('AI service is not configured');
+  return { apiKey: env.GEMINI_API_KEY.trim(), vertexai: false };
+}
+
+function createAIClient() {
+  return new GoogleGenAI(aiClientOptions());
 }
 
 export async function reflect({ message, history = [] }) {
@@ -132,7 +138,7 @@ export async function reflect({ message, history = [] }) {
   const prompt = `${transcript ? `RECENT CONVERSATION\n${transcript}\n\n` : ''}CURRENT USER REFLECTION\n${message}`;
 
   const response = await ai.models.generateContent({
-    model: process.env.GEMINI_MODEL || (vertexEnabled() ? 'gemini-3.1-flash-lite' : 'gemini-3.6-flash'),
+    model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
     contents: prompt,
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
@@ -149,4 +155,4 @@ export async function reflect({ message, history = [] }) {
   }
 }
 
-export { createAIClient, normalize, SYSTEM_INSTRUCTION, vertexEnabled };
+export { aiClientOptions, createAIClient, normalize, SYSTEM_INSTRUCTION, vertexEnabled };

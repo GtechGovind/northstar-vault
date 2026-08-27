@@ -2,6 +2,8 @@
 
 > Private clarity. Practical next steps.
 
+**Prize-readiness status — 27 August 2026:** the prototype is submitted, but eligibility is not yet fully verified. Production currently uses keyless Vertex AI. The Secret Manager/Gemini Developer API migration is prepared but has not passed its provider preflight; AI Studio feature-generation attempts currently return internal errors. See [verification and remaining requirements](docs/production-verification.md). Do not treat a Submitted badge as prize acceptance.
+
 Northstar Vault is a production-minded Gemini decision journal built for the Gen AI Academy APAC Cloud Run Ideathon. It turns an unstructured reflection into a transparent **Signal Map**: observed facts, possible assumptions, competing tensions, reasonable options, an honest counterpoint, and one testable 48-hour experiment.
 
 The starter challenge asks for a journal. Northstar Vault adds an opinionated decision-support workflow, visible trust controls, structured AI output, complete data export/erasure, adversarial prompt boundaries, and a polished responsive experience.
@@ -29,7 +31,7 @@ Cloud Run / Express
 Cloud Firestore                Gemini on Vertex AI
 ```
 
-The browser never receives AI credentials and never chooses a Firestore user path. See [the threat model](docs/threat-model.md) and [AI Studio constitution](docs/AI_STUDIO_CUSTOM_INSTRUCTIONS.md).
+The browser never receives AI credentials and never chooses a Firestore user path. Direct browser writes are denied; the authenticated server validates all mutations. See [the threat model](docs/threat-model.md), [AI Studio constitution](docs/AI_STUDIO_CUSTOM_INSTRUCTIONS.md), and [the staged Secret Manager migration](docs/secret-manager-migration.md).
 
 ## Prerequisites
 
@@ -38,7 +40,7 @@ The browser never receives AI credentials and never chooses a Firestore user pat
 - Google Sign-In enabled in Firebase Authentication
 - Firestore Native database
 - Vertex AI API enabled in the Google Cloud project
-- `gcloud`, `firebase-tools`, and Node.js 20+
+- `gcloud`, Node.js 22, and Java 21 for the Firestore emulator (`firebase-tools` is pinned as a development dependency)
 
 ## Local development
 
@@ -112,6 +114,8 @@ The service is public only so the landing page and sign-in flow are reachable. A
 
 ```bash
 npm run check
+npm run test:security
+npm audit
 curl -fsS "https://YOUR_SERVICE_URL/api/health"
 ```
 
@@ -120,13 +124,17 @@ Then verify:
 1. Signed-out visitors cannot call `/api/private/*`.
 2. Google Sign-In reaches an empty private vault.
 3. A reflection produces a reply and Signal Map.
-4. Refresh preserves the session; sign-out hides it.
+4. Refresh preserves the session; sign-out clears private DOM and invalidates late responses.
 5. A second account cannot read the first account's session URL.
 6. Export downloads valid JSON.
 7. Deleting one reflection and erasing the vault work only after confirmation.
 8. Browser network tools never show AI credentials.
 9. Firestore rules contain no open wildcard grants.
 10. Cloud Run has the required `dev-tutorial=cloud-run-ai-challenge` label.
+
+The local verification suite contains 15 unit/HTTP/client-lifecycle tests and 9 Auth/Firestore emulator tests. Emulator tests use only the guarded `demo-northstar-security` project, synthetic identities and deterministic AI responses; they are not evidence of two real production Google accounts. Vault erasure removes active journal records but retains an opaque anti-replay epoch marker. It does not delete the Google/Firebase account or certify deletion from cloud-provider backups.
+
+The development-only Pub/Sub dependency under Firebase CLI is pinned to 6.0.1 to avoid the vulnerable OpenTelemetry version in its older dependency tree. The full emulator suite is tested with this override; the production image installs no development dependencies.
 
 ## Challenge stack
 

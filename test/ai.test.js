@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize, vertexEnabled } from '../src/ai.js';
+import { aiClientOptions, normalize, vertexEnabled } from '../src/ai.js';
 
 test('normalizes and caps AI-controlled fields', () => {
   const result = normalize({
@@ -33,4 +33,21 @@ test('recognizes explicit Vertex AI configuration', () => {
   assert.equal(vertexEnabled(), false);
   if (previous === undefined) delete process.env.GOOGLE_GENAI_USE_VERTEXAI;
   else process.env.GOOGLE_GENAI_USE_VERTEXAI = previous;
+});
+
+test('Gemini uses only the server-injected key and explicitly disables Vertex AI', () => {
+  assert.deepEqual(aiClientOptions({ GEMINI_API_KEY: ' dummy-test-secret ', GOOGLE_GENAI_USE_VERTEXAI: '0' }), {
+    apiKey: 'dummy-test-secret', vertexai: false
+  });
+});
+
+test('missing or blank Gemini secret fails closed', () => {
+  assert.throws(() => aiClientOptions({}), /not configured/);
+  assert.throws(() => aiClientOptions({ GEMINI_API_KEY: ' ' }), /not configured/);
+});
+
+test('explicit rollback mode does not send the Gemini key to Vertex AI', () => {
+  assert.deepEqual(aiClientOptions({ GOOGLE_GENAI_USE_VERTEXAI: '1', GOOGLE_CLOUD_PROJECT: 'test-project', GEMINI_API_KEY: 'dummy-test-secret' }), {
+    vertexai: true, project: 'test-project', location: 'global'
+  });
 });

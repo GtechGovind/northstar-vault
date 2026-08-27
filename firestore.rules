@@ -10,14 +10,18 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, create, update, delete: if isOwner(userId);
+      allow read: if isOwner(userId);
+      // All mutations use the authenticated server API. Direct client writes
+      // must not bypass confirmation, validation or the erasure epoch lock.
+      allow write: if false;
 
       match /sessions/{sessionId} {
-        allow read, create, update, delete: if isOwner(userId);
+        allow read: if isOwner(userId);
+        allow write: if false;
 
         match /messages/{messageId} {
-          allow read, create, delete: if isOwner(userId);
-          allow update: if false;
+          allow read: if isOwner(userId);
+          allow write: if false;
         }
       }
     }
