@@ -1,10 +1,16 @@
 # Production verification
 
-Security release `northstar-vault-privacy0827` (source `ac8c006`) promoted to **100% production traffic** on 27 August 2026, after no-traffic verification. Previous known-good revision: `northstar-vault-00007-fjl`.
+Receipt release `northstar-vault-receipt0827` (source `b263037`) promoted to **100% production traffic** on 27 August 2026, after no-traffic verification. Immediate rollback revision: `northstar-vault-privacy0827` (security release source `ac8c006`). Earlier known-good revision: `northstar-vault-00007-fjl`.
 
 ## Current release evidence
 
-The new AI Studio-generated Privacy Receipt is integrated in source and passes local checks; its production deployment and browser verification are not yet recorded here. [Original output and reviewed changes](ai-studio/README.md) are preserved separately.
+The AI Studio-generated Privacy Receipt is live and browser-verified. [Original output and reviewed changes](ai-studio/README.md) are preserved separately. The release kept the existing Vertex mode, model, service identity and maximum of three instances; no permission or billing change was made.
+
+- The no-traffic candidate and production endpoint returned health 200 and private export 401 with `no-store`. The served app, receipt module and stylesheet matched the tested source exactly.
+- A signed-in synthetic-only test vault exported one reflection and two messages. Its receipt reported **1,504 UTF-8 bytes** and the expected five aggregate fields.
+- Both files downloaded successfully. An independent Node `crypto` SHA-256 over the actual downloaded export bytes matched the downloaded receipt exactly. No journal text or record identifiers were emitted by this verification.
+- Closing and reopening the Privacy Center cleared its receipt and status. The existing synthetic conversation still loaded after the new release.
+- The receipt layout was visually inspected in the live Privacy Center. The screenshot retained in the owner's workspace shows synthetic data only; no claim of complete accessibility certification is made.
 
 - Cloud Run container build and readiness succeeded. Health returned 200; signed-out private requests returned 401 with `Cache-Control: no-store`.
 - The tested Firestore rules compiled and were successfully released to production.
@@ -12,7 +18,7 @@ The new AI Studio-generated Privacy Receipt is integrated in source and passes l
 - The preserved provider is `GOOGLE_GENAI_USE_VERTEXAI=1`, model `gemini-3.1-flash-lite`; no Developer API migration has been claimed.
 - A real signed-in production reflection using explicitly synthetic text generated a structured reply and Signal Map after promotion.
 - A second real Google account signed in successfully and initially saw an empty vault, without the first account's existing or synthetic entries. Its own synthetic reflection also produced a real structured response. No project IAM access was granted to that second account.
-- The live full-vault confirmation check was interrupted by browser-control failure. Its outcome is unverified; do not count the local emulator result as a completed live deletion test. Existing journal entries were not targeted.
+- The earlier live full-vault confirmation check was interrupted by browser-control failure. After recovery the synthetic entry remained present. No live erasure success is claimed; fresh approval for test-only deletion/erasure has been requested. Existing journal entries were not targeted.
 - Public configuration contains only `apiKey`, `authDomain`, `projectId`, and `appId` for Firebase, not a Gemini key.
 - No IAM grant, billing change, key rotation, or cloud-region change was made by this security release. Existing scaling was preserved.
 
@@ -70,5 +76,4 @@ These tests use deterministic in-process model output and are **not** a substitu
 - Complete the remaining production isolation/cleanup checks after browser recovery. Separate real-account sign-in and vault display passed; authenticated cross-ID API denial is proven by the guarded emulator suite, not by production token replay.
 - Production full-vault erase on an empty/synthetic-only test identity; never erase the owner's real journal for a test.
 - Successful Gemini Developer API preflight and pinned Secret Manager runtime migration; current preflight returns HTTP 429.
-- Production deployment and browser verification of the genuine AI Studio-generated receipt enhancement. Generation and reviewed source integration are complete; see [provenance](ai-studio/README.md).
 - Submit only accurate service declarations and refreshed public evidence. Prize eligibility and organizer selection remain unconfirmed.

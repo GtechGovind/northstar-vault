@@ -12,7 +12,7 @@ https://github.com/GtechGovind/northstar-vault
 
 https://www.linkedin.com/feed/update/urn:li:activity:7498550271413809152/
 
-The public post contains `#AccelerateAIwithCloudRun`. Its code link resolves to the personal `GtechGovind` repository. The portal submission exists, but the persisted Secret Manager declaration is not yet backed by the production request path. An unchecked correction was prepared, but confirmation would consume evaluation attempt 3, so it was cancelled while other requirements remain blocked. Correct the declaration in the complete final bundle. A genuine AI Studio Privacy Receipt enhancement is now integrated and locally tested, with [original source and review evidence](docs/ai-studio/README.md); verify its live release before final submission.
+The public post contains `#AccelerateAIwithCloudRun`. Its code link resolves to the personal `GtechGovind` repository. The portal submission exists, but the persisted Secret Manager declaration is not yet backed by the production request path. An unchecked correction was prepared, but confirmation would consume evaluation attempt 3, so it was cancelled while other requirements remain blocked. Correct the declaration in the complete final bundle. The genuine AI Studio Privacy Receipt enhancement is live, locally tested and browser-verified, with [original source and review evidence](docs/ai-studio/README.md). The updated brief below is filled in the open form draft, **not resubmitted**; Secret Manager remains unchecked in that draft.
 
 ## Brief description (under 1,024 characters)
 
@@ -50,5 +50,5 @@ Northstar Vault turns tangled reflections into a transparent Signal Map: facts, 
 - [x] Personal public repository contains deployment steps, Firestore rules, threat model and reproducible verification results
 - [x] Public social post includes `#AccelerateAIwithCloudRun`
 - [x] Genuine AI Studio-generated enhancement integrated in source, tested and evidenced
-- [ ] New Privacy Receipt production release and browser check
+- [x] New Privacy Receipt production release and browser check, including independently matched downloaded-file SHA-256
 - [ ] All three public links work before pressing Submit
